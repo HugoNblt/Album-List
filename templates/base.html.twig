@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-       {% block title %}<title>Welcome!</title>{% endblock %}
 
-        {% block stylesheets %}
-            <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
-        {% endblock %}
+<head>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
 
-    </head>
-    <body>
+    {% block header %}
     <header>
-    {% block nav %}0
+        <h1>Album List</h1>
         <nav>
             <ul>
-                <li><strong>MMIPLE</strong></li>
-            </ul>
-            <ul>
-                <li><a href="#">Accueil</a></li>
-                <li><a href="#">Jeux</a></li>
-                <li><a href="#">Contact</a></li>
-                <li><a href="#">A Propos</a></li>
+                <li><a href="{{ path('app_home') }}">Accueil</a></li>
+
+                {% if app.user %}
+                    <li><p>{{ app.user.userIdentifier }}</p> <a href="{{ path('app_logout') }}">Logout</a></li>
+                {% else %}
+                    <li><a href="{{ path('app_login') }}">Login/Register</a></li>
+                {% endif %}
             </ul>
         </nav>
-    {% endblock %}
     </header>
+    {% endblock %}
+
+    {% block body %}
+    {% endblock %}
+
+
         {%  block footer %}
-            <footer style="position: absolute; bottom: 0;">@Designed By MMI</footer>
+            <footer style="position: absolute; bottom: 0;">@Designed By Hugo NOBLOT</footer>
         {% endblock %}
-    </body>
 </html>
