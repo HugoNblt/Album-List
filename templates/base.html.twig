@@ -13,6 +13,8 @@
                 <li><a href="{{ path('app_home') }}">Accueil</a></li>
 
                 {% if app.user %}
+                    <li><a href="{{ path('app_profile') }}">Profil</a></li>
+                    <a href="{{ path('app_post_create') }}">+ Nouvelle Review</a>
                     <li><p>{{ app.user.userIdentifier }}</p> <a href="{{ path('app_logout') }}">Logout</a></li>
                 {% else %}
                     <li><a href="{{ path('app_login') }}">Login/Register</a></li>
@@ -27,6 +29,6 @@
 
 
         {%  block footer %}
-            <footer style="position: absolute; bottom: 0;">@Designed By Hugo NOBLOT</footer>
+            <footer style="position: relative; bottom: 0;">@Designed By Hugo NOBLOT</footer>
         {% endblock %}
 </html>

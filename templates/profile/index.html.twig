@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon Profil{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Profil de {{ user.email }}</h1>
+    
+    <h2>Mes derniers ajouts de reviews d'album</h2>
+    
+    <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+        {% for review in reviews %}
+            {# Début d'une carte #}
+            <div>
+                <img src="{{ review.album.coverImage }}" alt="Cover de {{ review.album.title }}" style="width: 100%; border-radius: 4px;">
+                
+                <h3>{{ review.album.title }}</h3>
+                <h4>{{ review.album.artist }} ({{ review.album.releaseYear }})</h4>
+                
+                <p><strong>Note :</strong> {{ review.rating }}/10</p>
+                <p>{{ review.content }}</p>
+                
+                <hr>
+                <small>Posté le {{ review.createdAt|date('d/m/Y') }}</small>
+            </div>
+        {% else %}
+            <p>Tu n'as posté aucun avis pour le moment.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

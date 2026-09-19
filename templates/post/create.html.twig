@@ -1,0 +1,37 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un post{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1>Créer une nouvelle review</h1>
+
+    <form method="get" action="{{ path('app_post_create') }}" style="margin-bottom: 30px;">
+        <input type="text" name="q" value="{{ query }}" placeholder="Rechercher un album (ex: Random Access Memories)..." required style="padding: 8px; width: 300px;">
+        <button type="submit" style="padding: 8px;">Chercher sur Spotify</button>
+    </form>
+
+    {% if albums is not empty %}
+        <h2>Sélectionne un album :</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 20px;">
+            {% for album in albums %}
+                <div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; width: 220px;">
+                    {# L'API Spotify renvoie un tableau d'images, on prend la 2ème (taille moyenne) si elle existe #}
+                    {% set cover = album.images[1].url | default('https://via.placeholder.com/200') %}
+                    <img src="{{ cover }}" alt="Cover" style="width: 100%; border-radius: 4px;">
+                    
+                    <h4>{{ album.name }}</h4>
+                    <p><strong>{{ album.artists[0].name }}</strong></p>
+                    <p>{{ album.release_date|slice(0, 4) }}</p>
+                    
+                    <a href="{{ path('app_post_write', { spotifyId: album.id }) }}">
+    Écrire une review
+</a>
+                </div>
+            {% endfor %}
+        </div>
+    {% elseif query %}
+        <p>Aucun album trouvé pour "{{ query }}".</p>
+    {% endif %}
+</div>
+{% endblock %}
