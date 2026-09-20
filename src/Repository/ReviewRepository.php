@@ -16,6 +16,23 @@ class ReviewRepository extends ServiceEntityRepository
         parent::__construct($registry, Review::class);
     }
 
+    /**
+     * Recherche les critiques par titre d'album ou nom d'artiste
+     */
+    public function searchByAlbumOrArtist(string $query): array
+    {
+        return $this->createQueryBuilder('r')
+            ->innerJoin('r.album', 'a')
+            ->addSelect('a')
+            ->innerJoin('r.user', 'u')
+            ->addSelect('u')
+            ->where('a.title LIKE :q OR a.artist LIKE :q')
+            ->setParameter('q', '%' . $query . '%')
+            ->orderBy('r.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Review[] Returns an array of Review objects
     //     */

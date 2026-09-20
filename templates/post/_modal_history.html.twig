@@ -1,0 +1,25 @@
+<div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px;">
+    <img src="{{ album.coverImage }}" alt="Cover" style="width: 70px; height: 70px; border-radius: 6px; object-fit: cover;">
+    <div>
+        <h4 style="margin: 0;">{{ album.title }}</h4>
+        <p style="margin: 0; color: #666; font-size: 0.9rem;">par {{ album.artist }}</p>
+        <small style="color: #888;">Historique de <strong>{{ reviewUser.userIdentifier }}</strong> ({{ reviews|length }} révision{% if reviews|length > 1 %}s{% endif %})</small>
+    </div>
+</div>
+
+<div style="max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; padding-right: 5px;">
+    {% for r in reviews %}
+        <div style="border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; background: {% if loop.first %}#f9fff9{% else %}#fafafa{% endif %}; border-left: 4px solid {% if loop.first %}#1DB954{% else %}#ccc{% endif %};">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-weight: bold; color: #333;">
+                    Note : {{ r.rating }}/10
+                    {% if loop.first %}
+                        <small style="background: #1DB954; color: white; padding: 2px 6px; border-radius: 10px; font-size: 0.7rem; margin-left: 6px;">Dernière révision</small>
+                    {% endif %}
+                </span>
+                <small style="color: #777; font-size: 0.8rem;">Publié le {{ r.createdAt | date('d/m/Y à H:i') }}</small>
+            </div>
+            <p style="margin: 0; color: #444; font-size: 0.95rem; white-space: pre-line;">{{ r.content }}</p>
+        </div>
+    {% endfor %}
+</div>

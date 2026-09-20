@@ -89,45 +89,61 @@ class PostController extends AbstractController
     }
 
 
-#[Route('/modal/edit/{id}', name: 'app_modal_edit', methods: ['GET', 'POST'])]
-public function modalEdit(Review $review, Request $request, \Doctrine\ORM\EntityManagerInterface $em): Response
-{
-    if (!$this->getUser() || $this->getUser() !== $review->getUser()) {
-        return new Response('Non autorisé', 403);
-    }
+    #[Route('/modal/edit/{id}', name: 'app_modal_edit', methods: ['GET', 'POST'])]
+    public function modalEdit(Review $review, Request $request, \Doctrine\ORM\EntityManagerInterface $em): Response
+    {
+        if (!$this->getUser() || $this->getUser() !== $review->getUser()) {
+            return new Response('Non autorisé', 403);
+        }
 
-    $form = $this->createForm(ReviewType::class, $review, [
-        'action' => $this->generateUrl('app_modal_edit', ['id' => $review->getId()]),
-    ]);
-    $form->handleRequest($request);
+        $form = $this->createForm(ReviewType::class, $review, [
+            'action' => $this->generateUrl('app_modal_edit', ['id' => $review->getId()]),
+        ]);
+        $form->handleRequest($request);
 
-    if ($form->isSubmitted() && $form->isValid()) {
-        $em->flush();
-        return $this->json([
-            'status' => 'success',
-            'redirect' => $this->generateUrl('app_profile')
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->flush();
+            return $this->json([
+                'status' => 'success',
+                'redirect' => $this->generateUrl('app_profile')
+            ]);
+        }
+
+        return $this->render('post/_modal_edit.html.twig', [
+            'form' => $form->createView(),
+            'review' => $review,
         ]);
     }
 
-    return $this->render('post/_modal_edit.html.twig', [
-        'form' => $form->createView(),
-        'review' => $review,
-    ]);
-}
+    #[Route('/post/delete/{id}', name: 'app_post_delete', methods: ['POST'])]
+    public function delete(Review $review, Request $request, \Doctrine\ORM\EntityManagerInterface $em): Response
+    {
+        if (!$this->getUser() || $this->getUser() !== $review->getUser()) {
+            throw $this->createAccessDeniedException();
+        }
 
-#[Route('/post/delete/{id}', name: 'app_post_delete', methods: ['POST'])]
-public function delete(Review $review, Request $request, \Doctrine\ORM\EntityManagerInterface $em): Response
-{
-    if (!$this->getUser() || $this->getUser() !== $review->getUser()) {
-        throw $this->createAccessDeniedException();
+        $submittedToken = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete_review_' . $review->getId(), $submittedToken)) {
+            $em->remove($review);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_profile');
     }
 
-    $submittedToken = $request->request->get('_token');
-    if ($this->isCsrfTokenValid('delete_review_' . $review->getId(), $submittedToken)) {
-        $em->remove($review);
-        $em->flush();
-    }
+    #[Route('/modal/history/{id}', name: 'app_modal_history', methods: ['GET'])]
+    public function modalHistory(Review $review, \App\Repository\ReviewRepository $reviewRepository): Response
+    {
+        // Récupère tous les avis de CET utilisateur pour CET album, du plus récent au plus ancien
+        $allUserReviews = $reviewRepository->findBy(
+            ['album' => $review->getAlbum(), 'user' => $review->getUser()],
+            ['createdAt' => 'DESC']
+        );
 
-    return $this->redirectToRoute('app_profile');
-}
+        return $this->render('post/_modal_history.html.twig', [
+            'album' => $review->getAlbum(),
+            'reviews' => $allUserReviews,
+            'reviewUser' => $review->getUser(),
+        ]);
+    }
 }

@@ -5,6 +5,8 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\User;
+use App\Repository\ReviewRepository;
 
 class ProfileController extends AbstractController
 {
@@ -25,4 +27,15 @@ class ProfileController extends AbstractController
             'reviews' => $user->getReviews(), 
         ]);
     }
+    #[Route('/user/{id}', name: 'app_profile_show', methods: ['GET'])]
+public function show(User $user, ReviewRepository $reviewRepository): Response
+{
+    // Récupère les avis de cet utilisateur du plus récent au plus ancien
+    $reviews = $reviewRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
+
+    return $this->render('profile/show.html.twig', [
+        'profileUser' => $user,
+        'reviews' => $reviews,
+    ]);
+}
 }

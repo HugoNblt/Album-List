@@ -16,24 +16,24 @@ class Album
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $spotifyId = null;
-
-    #[ORM\Column(length: 255)]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
     private ?string $artist = null;
 
-    #[ORM\Column]
-    private ?int $releaseYear = null;
+    #[ORM\Column(length: 500, nullable: true)]
+    private ?string $coverImage = null;
 
     #[ORM\Column(length: 255)]
-    private ?string $coverImage = null;
+    private ?string $spotifyId = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?int $releaseYear = null;
 
     /**
      * @var Collection<int, Review>
      */
-    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'album', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Review::class, mappedBy: 'album', cascade: ['remove'])]
     private Collection $reviews;
 
     public function __construct()
@@ -44,18 +44,6 @@ class Album
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getSpotifyId(): ?string
-    {
-        return $this->spotifyId;
-    }
-
-    public function setSpotifyId(string $spotifyId): static
-    {
-        $this->spotifyId = $spotifyId;
-
-        return $this;
     }
 
     public function getTitle(): ?string
@@ -82,26 +70,38 @@ class Album
         return $this;
     }
 
-    public function getReleaseYear(): ?int
-    {
-        return $this->releaseYear;
-    }
-
-    public function setReleaseYear(int $releaseYear): static
-    {
-        $this->releaseYear = $releaseYear;
-
-        return $this;
-    }
-
     public function getCoverImage(): ?string
     {
         return $this->coverImage;
     }
 
-    public function setCoverImage(string $coverImage): static
+    public function setCoverImage(?string $coverImage): static
     {
         $this->coverImage = $coverImage;
+
+        return $this;
+    }
+
+    public function getSpotifyId(): ?string
+    {
+        return $this->spotifyId;
+    }
+
+    public function setSpotifyId(string $spotifyId): static
+    {
+        $this->spotifyId = $spotifyId;
+
+        return $this;
+    }
+
+    public function getReleaseYear(): ?int
+    {
+        return $this->releaseYear;
+    }
+
+    public function setReleaseYear(?int $releaseYear): static
+    {
+        $this->releaseYear = $releaseYear;
 
         return $this;
     }
@@ -127,7 +127,6 @@ class Album
     public function removeReview(Review $review): static
     {
         if ($this->reviews->removeElement($review)) {
-            // set the owning side to null (unless already changed)
             if ($review->getAlbum() === $this) {
                 $review->setAlbum(null);
             }

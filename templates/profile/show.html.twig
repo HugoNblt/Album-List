@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+
+{% set displayName = profileUser.username ?: profileUser.userIdentifier %}
+
+{% block title %}Profil de {{ displayName }}{% endblock %}
+
+{% block body %}
+<div style="max-width: 800px; margin: 0 auto; padding: 20px;">
+    {# En-tête du profil #}
+    <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 30px; background: #f9f9f9; padding: 20px; border-radius: 12px; border: 1px solid #eee;">
+        <div style="width: 60px; height: 60px; border-radius: 50%; background: #007bff; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1.5rem;">
+            {{ displayName|slice(0, 1)|upper }}
+        </div>
+        <div>
+            <h1 style="margin: 0; font-size: 1.8rem;">{{ displayName }}</h1>
+            <p style="margin: 5px 0 0 0; color: #666;">Membre de la communauté</p>
+        </div>
+    </div>
+
+    <h2>Critiques de {{ displayName }}</h2>
+
+    {# Fil d'actualité de l'utilisateur (uniquement la dernière révision par album) #}
+    {% set displayedAlbums = [] %}
+    <div style="display: flex; flex-direction: column; gap: 20px; margin-top: 20px;">
+        {% for review in reviews %}
+            {% if review.album and review.album.id not in displayedAlbums %}
+                {% set displayedAlbums = displayedAlbums | merge([review.album.id]) %}
+                {% include 'review/_review_card.html.twig' with {'review': review} %}
+            {% endif %}
+        {% else %}
+            <p style="color: #666;">Cet utilisateur n'a pas encore rédigé de critique.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

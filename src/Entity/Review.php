@@ -41,9 +41,9 @@ class Review
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
-    #[ORM\ManyToOne(inversedBy: 'reviews')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Album $album = null;
+   #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'reviews')]
+#[ORM\JoinColumn(nullable: false)]
+private ?Album $album = null;
 
     public function __construct()
     {
