@@ -1,0 +1,17 @@
+<div style="display: flex; gap: 20px; align-items: flex-start;">
+    <div style="width: 120px; flex-shrink: 0;">
+        <img src="{{ album.coverImage }}" alt="Cover" style="width: 100%; border-radius: 6px;">
+        <h4 style="font-size: 0.9rem; margin: 8px 0 2px 0;">{{ album.title }}</h4>
+        <p style="font-size: 0.8rem; color: #555; margin: 0;">{{ album.artist }}</p>
+    </div>
+    <div style="flex: 1;">
+        {{ form_start(form, { 'attr': { 'id': 'modal-write-form' } }) }}
+            {{ form_row(form.rating) }}
+            {{ form_row(form.content) }}
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button type="submit" style="background: #1DB954; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Publier</button>
+                <button type="button" id="btn-back-search" style="background: #ccc; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">Retour</button>
+            </div>
+        {{ form_end(form) }}
+    </div>
+</div>

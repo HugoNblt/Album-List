@@ -3,6 +3,10 @@
 namespace App\Controller;
 
 use App\Service\SpotifyService;
+use App\Entity\Album;
+use App\Entity\Review;
+use App\Form\ReviewType;
+use App\Controller\App\Entity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -10,31 +14,27 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class PostController extends AbstractController
 {
-    #[Route('/post/create', name: 'app_post_create')]
-    public function create(Request $request, SpotifyService $spotifyService): Response
+   
+    #[Route('/modal/search-form', name: 'app_modal_search_form', methods: ['GET'])]
+    public function modalSearchForm(): Response
     {
-        // On sécurise la page : il faut être connecté pour créer un post
-        if (!$this->getUser()) {
-            return $this->redirectToRoute('app_login');
-        }
+        return $this->render('post/_modal_search.html.twig');
+    }
 
-        // On récupère le paramètre "q" dans l'URL (ex: /post/create?q=Daft+Punk)
-        $query = $request->query->get('q');
-        $albums = [];
+    #[Route('/modal/search-results', name: 'app_modal_search_results', methods: ['GET'])]
+    public function modalSearchResults(Request $request, \App\Service\SpotifyService $spotifyService): Response
+    {
+        $query = $request->query->get('q', '');
+        $albums = $query ? $spotifyService->searchAlbums($query) : [];
 
-        // Si l'utilisateur a fait une recherche, on appelle Spotify
-        if ($query) {
-            $albums = $spotifyService->searchAlbums($query);
-        }
-
-        return $this->render('post/create.html.twig', [
+        return $this->render('post/_modal_results.html.twig', [
             'albums' => $albums,
             'query' => $query,
         ]);
     }
-    
-    #[Route('/post/write/{spotifyId}', name: 'app_post_write')]
-    public function write(
+
+    #[Route('/modal/write/{spotifyId}', name: 'app_modal_write', methods: ['GET', 'POST'])]
+    public function modalWrite(
         string $spotifyId,
         Request $request,
         SpotifyService $spotifyService,
@@ -42,18 +42,14 @@ class PostController extends AbstractController
         \Doctrine\ORM\EntityManagerInterface $em
     ): Response {
         if (!$this->getUser()) {
-            return $this->redirectToRoute('app_login');
+            return new Response('Non autorisé', 403);
         }
 
-        // 1. Chercher si l'album existe déjà dans notre BDD locale
         $album = $albumRepository->findOneBy(['spotifyId' => $spotifyId]);
-
-        // 2. S'il n'existe pas, on le crée avec les données de Spotify
         if (!$album) {
             $spotifyData = $spotifyService->getAlbum($spotifyId);
-            
             if (!$spotifyData) {
-                throw $this->createNotFoundException('Album introuvable sur Spotify');
+                return new Response('Album introuvable sur Spotify', 404);
             }
 
             $album = new \App\Entity\Album();
@@ -66,9 +62,10 @@ class PostController extends AbstractController
             $em->persist($album);
         }
 
-        // 3. Création de la Review
         $review = new \App\Entity\Review();
-        $form = $this->createForm(\App\Form\ReviewType::class, $review);
+        $form = $this->createForm(\App\Form\ReviewType::class, $review, [
+            'action' => $this->generateUrl('app_modal_write', ['spotifyId' => $spotifyId]),
+        ]);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
@@ -76,16 +73,61 @@ class PostController extends AbstractController
             $review->setUser($this->getUser());
             $review->setCreatedAt(new \DateTimeImmutable());
             
-            // Si c'est un nouvel album, le persist de l'album et de la review se font en même temps
             $em->persist($review);
             $em->flush();
 
-            return $this->redirectToRoute('app_profile'); // Retour au profil pour voir l'ajout
+            return $this->json([
+                'status' => 'success',
+                'redirect' => $this->generateUrl('app_profile')
+            ]);
         }
 
-        return $this->render('post/write.html.twig', [
+        return $this->render('post/_modal_write.html.twig', [
             'form' => $form->createView(),
             'album' => $album,
         ]);
     }
+
+
+#[Route('/modal/edit/{id}', name: 'app_modal_edit', methods: ['GET', 'POST'])]
+public function modalEdit(Review $review, Request $request, \Doctrine\ORM\EntityManagerInterface $em): Response
+{
+    if (!$this->getUser() || $this->getUser() !== $review->getUser()) {
+        return new Response('Non autorisé', 403);
+    }
+
+    $form = $this->createForm(ReviewType::class, $review, [
+        'action' => $this->generateUrl('app_modal_edit', ['id' => $review->getId()]),
+    ]);
+    $form->handleRequest($request);
+
+    if ($form->isSubmitted() && $form->isValid()) {
+        $em->flush();
+        return $this->json([
+            'status' => 'success',
+            'redirect' => $this->generateUrl('app_profile')
+        ]);
+    }
+
+    return $this->render('post/_modal_edit.html.twig', [
+        'form' => $form->createView(),
+        'review' => $review,
+    ]);
+}
+
+#[Route('/post/delete/{id}', name: 'app_post_delete', methods: ['POST'])]
+public function delete(Review $review, Request $request, \Doctrine\ORM\EntityManagerInterface $em): Response
+{
+    if (!$this->getUser() || $this->getUser() !== $review->getUser()) {
+        throw $this->createAccessDeniedException();
+    }
+
+    $submittedToken = $request->request->get('_token');
+    if ($this->isCsrfTokenValid('delete_review_' . $review->getId(), $submittedToken)) {
+        $em->remove($review);
+        $em->flush();
+    }
+
+    return $this->redirectToRoute('app_profile');
+}
 }
