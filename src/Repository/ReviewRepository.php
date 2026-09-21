@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Review;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
+use App\Entity\User;
 
 /**
  * @extends ServiceEntityRepository<Review>
@@ -32,6 +33,34 @@ class ReviewRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+    public function searchInUserReviews(User $user, string $query): array
+{
+    return $this->createQueryBuilder('r')
+        ->distinct()
+        ->leftJoin('r.album', 'a')->addSelect('a')
+        ->leftJoin('r.user', 'u')->addSelect('u')
+        ->where('r.user = :user')
+        ->andWhere('a.title LIKE :q OR a.artist LIKE :q OR r.content LIKE :q')
+        ->setParameter('user', $user)
+        ->setParameter('q', '%' . $query . '%')
+        ->orderBy('r.createdAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
+public function search(string $query): array
+{
+    return $this->createQueryBuilder('r')
+        ->distinct()
+        ->leftJoin('r.album', 'a')->addSelect('a')
+        ->leftJoin('r.user', 'u')->addSelect('u')
+        ->where('a.title LIKE :q')
+        ->orWhere('a.artist LIKE :q')
+        ->orWhere('r.content LIKE :q')
+        ->setParameter('q', '%' . $query . '%')
+        ->orderBy('r.createdAt', 'DESC')
+        ->getQuery()
+        ->getResult();
+}
 
     //    /**
     //     * @return Review[] Returns an array of Review objects

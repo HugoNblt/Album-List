@@ -1,89 +1,43 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Mon Profil
-{% endblock %}
+{% block title %}Profil de {{ user.username }}{% endblock %}
 
 {% block body %}
-	<div class="container">
-		<h1>Profil de
-			{{ user.email }}</h1>
+    <div class="container" style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
+        <h1 style="margin-bottom: 20px;">Dernières critiques d'album par {{ user.username }}</h1>
 
-		<h2>Mes derniers ajouts de reviews d'album</h2>
+        {# Formulaire de recherche interne au profil #}
+        <form method="GET" action="{{ path('app_profile_show', { username: user.username }) }}" style="display: flex; gap: 10px; margin-bottom: 30px;">
+            <input 
+                type="search" 
+                name="q" 
+                value="{{ q|default('') }}" 
+                placeholder="Rechercher dans les avis de {{ user.username }}..." 
+                style="flex: 1; padding: 12px 15px; border: 1px solid #444; background: #181818; color: #fff; border-radius: 6px; font-size: 1rem;"
+            >
+            <button type="submit" style="padding: 12px 20px; background: #1DB954; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+                Rechercher
+            </button>
+            {% if q is defined and q is not empty %}
+                <a href="{{ path('app_profile_show', { username: user.username }) }}" style="padding: 12px 18px; background: #444; color: white; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; font-size: 0.9rem;">
+                    Réinitialiser
+                </a>
+            {% endif %}
+        </form>
 
-		<div style="display: flex; flex-wrap: wrap; gap: 20px;">
-			{% set displayedAlbums = [] %}
-
-			{% for review in reviews | sort((a, b) => b.createdAt <=> a.createdAt) %}
-				{# On vérifie si l'album de cette review n'a pas DÉJÀ été affiché #}
-				{% if review.album and review.album.id not in displayedAlbums %}
-
-					{# On marque cet album comme "déjà affiché" #}
-					{% set displayedAlbums = displayedAlbums | merge([review.album.id]) %}
-
-					{# Affichage de la CARTE (uniquement la dernière révision) #}
-					<div class="review-card" style="display: flex; gap: 15px; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px; align-items: flex-start; background: #fff;">
-						<img src="{{ review.album.coverImage | default('https://via.placeholder.com/100') }}" alt="Cover" style="width: 80px; height: 80px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">
-
-						<div style="flex: 1;">
-							<div style="display: flex; justify-content: space-between; align-items: flex-start;">
-								<h4 style="margin: 0 0 5px 0;">
-									{{ review.album.title }}
-									<small style="font-weight: normal; color: #555;">par
-										{{ review.album.artist }}</small>
-								</h4>
-								<small style="color: #666; font-size: 0.8rem;">Dernière révision le
-									{{ review.createdAt | date('d/m/Y') }}</small>
-							</div>
-
-							<p style="margin: 0 0 8px 0;">
-								<strong>Note actuelle :</strong>
-								{{ review.rating }}/10</p>
-							<p style="margin: 0; color: #333;">{{ review.content }}</p>
-
-							<div
-								style="display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; align-items: center;">
-								{# Bouton d'écoute universel (Song.link / Odesli) #}
-								{% if review.album and review.album.spotifyId %}
-									<a href="https://open.spotify.com/album/{{ review.album.spotifyId }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 5px; background: #111; color: #fff; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; text-decoration: none; font-weight: bold;">
-										🎧 Écouter l'album
-									</a>
-								{% endif %}
-
-								{% if app.user and review.user == app.user %}
-									{# 1. Nouvelle révision #}
-									<button type="button" class="btn-choose-album" data-spotify-id="{{ review.album.spotifyId }}" style="background: #1DB954; color: white; padding: 5px 12px; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
-										+ Nouvelle révision
-									</button>
-
-									{# 2. Modifier #}
-									<button type="button" class="btn-edit-review" data-id="{{ review.id }}" style="background: #333; color: white; padding: 5px 12px; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
-										Modifier
-									</button>
-
-									{# 3. Supprimer #}
-									<form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" onsubmit="return confirm('Supprimer cette critique ?');" style="display:inline;">
-										<input type="hidden" name="_token" value="{{ csrf_token('delete_review_' ~ review.id) }}">
-										<button type="submit" style="background: #e74c3c; color: white; padding: 5px 12px; border: none; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
-											Supprimer
-										</button>
-									</form>
-								{% endif %}
-
-								{# 4. Historique #}
-								{% set userReviews = review.album.reviews | filter(r => r.user == review.user) %}
-								{% if userReviews | length > 1 %}
-									<button type="button" class="btn-history-review" data-id="{{ review.id }}" style="background: #f0f0f0; color: #333; border: 1px solid #ccc; padding: 5px 12px; border-radius: 4px; font-size: 0.85rem; cursor: pointer;">
-										📜 Historique ({{ userReviews | length }})
-									</button>
-								{% endif %}
-							</div>
-						</div>
-					</div>
-
-				{% endif %}
-			{% else %}
-				<p>Aucune critique pour le moment.</p>
-			{% endfor %}
-		</div>
-	</div>
+        {# Liste des critiques #}
+        <div class="reviews-feed" style="display: flex; flex-direction: column; gap: 20px;">
+            {% for review in reviews %}
+                {% include 'review/_review_card.html.twig' with { review: review } %}
+            {% else %}
+                <div style="text-align: center; padding: 40px; background: #181818; border-radius: 8px; color: #b3b3b3;">
+                    {% if q is defined and q is not empty %}
+                        <p style="margin: 0;">Aucune critique ne correspond à « {{ q }} » pour ce profil.</p>
+                    {% else %}
+                        <p style="margin: 0;">Aucune critique rédigée pour le moment.</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
 {% endblock %}

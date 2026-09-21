@@ -6,7 +6,11 @@
 			{% block title %}Album List
 			{% endblock %}
 		</title>
-		<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css"> {% block stylesheets %}{% endblock %}
+		<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css"> 
+        {% block stylesheets %}
+            <link href="{{ asset('css/styles.css') }}" type="text/css" rel="stylesheet">
+        {% endblock %}
+        
 	</head>
 		<body>
 			{% block header %}
@@ -14,26 +18,13 @@
 					<h1>Album List</h1>
 					<nav>
 						<ul>
-							<li>
-								<a href="{{ path('app_home') }}">Accueil</a>
-							</li>
+							<li><a href="{{ path('app_home') }}">Accueil</a></li>
 							{% if app.user %}
-								<li>
-									<a href="{{ path('app_profile') }}">Profil</a>
-								</li>
-								<li>
-									<button type="button" id="btn-open-review" style="padding: 6px 14px; background: #1DB954; color: white; border: none; border-radius: 20px; font-weight: bold; cursor: pointer;">
-										+ Nouvelle Review
-									</button>
-								</li>
-								<li>
-									<p style="margin: 0; display: inline;">{{ app.user.userIdentifier }}</p>
-									<a href="{{ path('app_logout') }}">Logout</a>
-								</li>
+								<li><a href="{{ path('app_profile') }}">Profil</a></li>
+								<li><a id="btn-open-review">Nouvelle Review</a></li>
+								<li class="profile_logout"><p style="margin: 0; display: inline;">{{ app.user.userIdentifier }}</p><a href="{{ path('app_logout') }}">Logout</a></li>
 							{% else %}
-								<li>
-									<a href="{{ path('app_login') }}">Login/Register</a>
-								</li>
+								<li><a href="{{ path('app_login') }}">Login/Register</a></li>
 							{% endif %}
 						</ul>
 					</nav>

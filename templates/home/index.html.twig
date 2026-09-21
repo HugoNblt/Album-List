@@ -12,8 +12,7 @@
 			<h1>🎵 Découvrez & Partagez de la Musique</h1>
 
 			<form action="{{ path('app_home') }}" method="get" style="margin-top: 20px; display: flex; gap: 10px; justify-content: center;">
-				<input type="text" name="q" value="{{ query }}" placeholder="Rechercher un album, un artiste ou un profil..." style="width: 70%; max-width: 500px; padding: 12px 16px; border-radius: 25px; border: 1px solid #ccc; font-size: 1rem;">
-				<button type="submit" style="padding: 12px 20px; background: #1DB954; color: white; border: none; border-radius: 25px; font-weight: bold; cursor: pointer;">
+<input type="search" name="q" value="{{ q|default('') }}" placeholder="Rechercher un album, un artiste ou un profil...">				<button type="submit" style="padding: 12px 20px; background: #1DB954; color: white; border: none; border-radius: 25px; font-weight: bold; cursor: pointer;">
 					🔍 Rechercher
 				</button>
 				{% if query %}
@@ -25,24 +24,22 @@
 		</div>
 
 		{# SECTION : Résultats de la recherche Utilisateurs #}
-		{% if query and users is not empty %}
-			<section style="margin-bottom: 40px;">
-				<h2>👤 Profils trouvés ({{ users|length }})</h2>
-				<div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 15px;">
-					{% for user in users %}
-						{% set displayName = user.username ?: user.userIdentifier %}
-						<a href="{{ path('app_profile_show', {id: user.id}) }}" style="text-decoration: none; color: inherit;">
-							<div style="display: flex; align-items: center; gap: 10px; background: #f9f9f9; padding: 10px 16px; border-radius: 20px; border: 1px solid #e0e0e0;">
-								<div style="width: 35px; height: 35px; border-radius: 50%; background: #007bff; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
-									{{ displayName|slice(0, 1)|upper }}
-								</div>
-								<span style="font-weight: bold;">{{ displayName }}</span>
-							</div>
-						</a>
-					{% endfor %}
-				</div>
-			</section>
-		{% endif %}
+		{# Section Profils trouvés dans templates/home/index.html.twig #}
+{% if users is defined and users is not empty %}
+    <h2 style="margin-top: 30px;">🟣 Profils trouvés ({{ users|length }})</h2>
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 30px;">
+        {% for u in users %}
+            {% if u.username is not empty %}
+                <a href="{{ path('app_profile_show', { username: u.username }) }}" style="padding: 10px 18px; background: #fff; color: #000; border-radius: 20px; text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 8px;">
+                    <span style="width: 24px; height: 24px; background: #007bff; color: #fff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 0.8rem;">
+                        {{ u.username|first|upper }}
+                    </span>
+                    {{ u.username }}
+                </a>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
 
 		{# SECTION : Critiques (Fil principal ou Résultats) #}
 		<section>

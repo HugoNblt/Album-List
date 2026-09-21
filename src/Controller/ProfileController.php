@@ -2,40 +2,46 @@
 
 namespace App\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\User;
 use App\Repository\ReviewRepository;
+use Symfony\Bridge\Doctrine\Attribute\MapEntity;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 
 class ProfileController extends AbstractController
 {
-    #[Route('/profil', name: 'app_profile')]
-    public function index(): Response
+    #[Route('/profile', name: 'app_profile')]
+    public function profile(): Response
     {
-        // Récupère l'utilisateur actuellement connecté
+        /** @var User|null $user */
         $user = $this->getUser();
-
-        // Sécurité : si personne n'est connecté, on redirige vers le login
         if (!$user) {
-            return $this->redirectToRoute('app_login'); // Assure-toi que ce nom de route correspond à ton login
+            return $this->redirectToRoute('app_login');
         }
+
+        return $this->redirectToRoute('app_profile_show', [
+            'username' => $user->getUsername()
+        ]);
+    }
+
+    #[Route('/user/{username}', name: 'app_profile_show')]
+    public function show(
+        #[MapEntity(mapping: ['username' => 'username'])] User $user,
+        Request $request,
+        ReviewRepository $reviewRepository
+    ): Response {
+        $q = trim((string) $request->query->get('q', ''));
+
+        $reviews = $q !== ''
+            ? $reviewRepository->searchInUserReviews($user, $q)
+            : $reviewRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
 
         return $this->render('profile/index.html.twig', [
             'user' => $user,
-            // Grâce au "yes" de tout à l'heure, Doctrine récupère toutes les reviews liées
-            'reviews' => $user->getReviews(), 
+            'reviews' => $reviews,
+            'q' => $q,
         ]);
     }
-    #[Route('/user/{id}', name: 'app_profile_show', methods: ['GET'])]
-public function show(User $user, ReviewRepository $reviewRepository): Response
-{
-    // Récupère les avis de cet utilisateur du plus récent au plus ancien
-    $reviews = $reviewRepository->findBy(['user' => $user], ['createdAt' => 'DESC']);
-
-    return $this->render('profile/show.html.twig', [
-        'profileUser' => $user,
-        'reviews' => $reviews,
-    ]);
-}
 }

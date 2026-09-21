@@ -12,29 +12,31 @@ use Symfony\Component\Routing\Annotation\Route;
 class HomeController extends AbstractController
 {
     #[Route('/', name: 'app_home')]
-    public function index(
-        Request $request,
-        ReviewRepository $reviewRepository,
-        UserRepository $userRepository
-    ): Response {
-        $query = trim($request->query->get('q', ''));
+public function index(
+    Request $request, 
+    ReviewRepository $reviewRepository, 
+    UserRepository $userRepository
+): Response {
+    $q = trim((string) $request->query->get('q', ''));
 
-        $reviews = [];
+    if ($q !== '') {
+        $reviews = $reviewRepository->search($q);
+        // On récupère les utilisateurs correspondants
+        $users = $userRepository->createQueryBuilder('u')
+            ->where('u.username LIKE :q')
+            ->setParameter('q', '%' . $q . '%')
+            ->getQuery()
+            ->getResult();
+    } else {
+        $reviews = $reviewRepository->findBy([], ['createdAt' => 'DESC']);
         $users = [];
-
-        if (!empty($query)) {
-            // Résultats de recherche
-            $reviews = $reviewRepository->searchByAlbumOrArtist($query);
-            $users = $userRepository->searchByQuery($query);
-        } else {
-            // Fil d'actualité général (20 dernières critiques)
-            $reviews = $reviewRepository->findBy([], ['createdAt' => 'DESC'], 20);
-        }
-
-        return $this->render('home/index.html.twig', [
-            'query' => $query,
-            'reviews' => $reviews,
-            'users' => $users,
-        ]);
     }
+
+    return $this->render('home/index.html.twig', [
+    'reviews' => $reviews,
+    'users' => $users,
+    'q' => $q,
+    'query' => $q, // 👈 Ajoute cette ligne si ton template attend "query"
+]);
+}
 }
