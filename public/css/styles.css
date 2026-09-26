@@ -1,3 +1,8 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
 /* width */
 ::-webkit-scrollbar {
   width: 3px;
@@ -5,36 +10,373 @@
 
 /* Track */
 ::-webkit-scrollbar-track {
-  background: #f1f1f1; 
+  background: #f1f1f1;
 }
- 
+
 /* Handle */
 ::-webkit-scrollbar-thumb {
-  background: #888; 
+  background: #888;
 }
 
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #555; 
+  background: #555;
 }
-
 
 /* HEADER ***************************************************************/
-
-header ul{
-    max-width: 100%;
-    display: flex;
-    justify-content: center;
-    justify-content: space-between;
-    padding-left: 20%;
-    padding-right: 20%;
-    flex-direction: row;
-    font-size: 24px;
-    list-style-type: none;
+header {
+  padding: 10px;
+  background: rgb(85, 85, 122);
 }
-header .profile_logout{
+
+
+
+header ul {
+  color: white;
+  text-decoration: none;
+  max-width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  flex-direction: row;
+  font-size: 24px;
+  list-style-type: none;
+  height: 5vh;
+}
+
+header ul li {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+header ul li a {
+  text-decoration: none;
+  color: white;
+}
+
+header ul li a:hover {
+  color: orange;
+}
+
+header .profile_logout {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+
+/* REVIEW CARD ******************************************************************************************/
+
+
+.review-card {
+  width: 800px;
+  background-color: #393c65;
+  color: #ffffff;
+  border-radius: 24px;
+  padding: 20px;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  margin-bottom: 20px;
+  display: flex;
+    flex-direction: column;
+  height: 460px;
+}
+
+.user_info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.user_info_pp {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #393c65;
+}
+
+.user_info_name {
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.user_info_publish_date{
+  font-size: 0.85rem;
+  color: #a0a3c4;
+  margin-top: 2px;
+}
+
+/* --- BLOC ALBUM & DETAILS --- */
+.review_card_album {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+    align-items: flex-start;
+}
+
+.review_card_cover {
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 10px;
+    flex-shrink: 0;
+}
+
+.review_card_details {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
+    padding-top: 2px;
+}
+
+.review_card_title {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.review_card_artist {
+    color: #a0a3c4;
+    font-size: 1rem;
+    margin-top: 4px;
+    margin-bottom: 12px;
+}
+
+.review_card_rating {
+    font-size: 2.2rem;
+    font-weight: 500;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.review_card_stars {
+    color: #ffffff;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    margin-top: 6px;
+}
+
+.review_card_star_half {
+    opacity: 0.6;
+}
+
+.review_card_star_empty {
+    opacity: 0.25;
+}
+
+/* --- CONTENU --- */
+.review_card_content {
+    color: #e0e2f0;
+    font-size: 0.95rem;
+    line-height: 1.45;
+    margin-bottom: 20px;
+    white-space: pre-line;
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+/* --- FOOTER & ACTIONS --- */
+.review_card_footer {
+    display: flex;
+    justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding-top: 8px;
+    margin-top: auto;
+}
+
+.review_card_actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.btn-choose-album,
+.btn-edit-review {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.review_card_delete_form {
+    display: inline;
+    margin: 0;
+}
+
+.btn-delete-review {
+    background: rgba(231, 76, 60, 0.3);
+    color: #ff8b8b;
+    border: 1px solid rgba(231, 76, 60, 0.4);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btn-history-review {
+    background: rgba(255, 255, 255, 0.1);
+    color: #e0e2f0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.like-btn {
+    background: none;
+    border: none;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    padding: 0;
+}
+
+.like-btn.is-liked {
+    color: #e63946;
+}
+
+.review_card_btn_listen {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #ebba38;
+    color: #000000;
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 1rem;
+    text-decoration: none;
+    font-weight: 600;
+    margin-left: auto;
+}
+
+.review_card_btn_listen_icon {
+    font-size: 0.8rem;
+}
+
+/* ? POPUP ************************************************************************************/
+
+/* --- BOUTON FIXE AIDE (?) --- */
+.floating-help-btn {
+    position: fixed;
+    bottom: 85px; /* Placé au-dessus de la bottom nav mobile (70px) */
+    left: 20px;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #8180e0;
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1001;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s, background 0.2s;
+}
+
+.floating-help-btn:hover {
+    transform: scale(1.08);
+    background: #6c6bc8;
+}
+
+/* Ajustement position sur Desktop */
+@media (min-width: 992px) {
+    .floating-help-btn {
+        bottom: 25px;
+        left: 280px; /* Décale le bouton à droite de la sidebar (260px + 20px) */
+    }
+}
+
+/* --- MODALE A PROPOS --- */
+.app-modal {
+    border: none;
+    border-radius: 16px;
+    background: #23233c;
+    color: #ffffff;
+    padding: 24px;
+    max-width: 480px;
+    width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.app-modal::backdrop {
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.3rem;
+}
+
+.modal-close-btn {
+    background: none;
+    border: none;
+    color: #a0a3c4;
+    font-size: 1.8rem;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-close-btn:hover {
+    color: #ffffff;
+}
+
+.about-section h3 {
+    margin-top: 0;
+    font-size: 1.05rem;
+    color: #ebba38;
+}
+
+.about-section p {
+    color: #e0e2f0;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.modal-divider {
+    border: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 18px 0;
+}
+
+.changelog-list {
+    padding-left: 18px;
+    margin: 0;
+    color: #e0e2f0;
+    font-size: 0.9rem;
+    line-height: 1.6;
 }

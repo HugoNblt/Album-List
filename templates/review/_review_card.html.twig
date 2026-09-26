@@ -1,18 +1,18 @@
-<div class="review-card" style="width: 640px;  background-color: #393c65; color: #ffffff; border-radius: 24px; padding: 20px; font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2); margin-bottom: 20px;">
+<div class="review-card">
     
     {# Header : Utilisateur & Date #}
     {% if review.user %}
         {% set authorName = review.user.username ?: review.user.userIdentifier %}
-        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
-            <div style="width: 44px; height: 44px; border-radius: 50%; background: #ffffff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #393c65;">
+        <div class="user_info">
+            <div class="user_info_pp">
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                 </svg>
             </div>
             <div>
-                <div style="font-weight: 600; font-size: 1.1rem; color: #ffffff; line-height: 1.2;">{{ authorName }}</div>
+                <div class="user_info_name">{{ authorName }}</div>
                 {% if review.createdAt %}
-                    <div style="font-size: 0.85rem; color: #a0a3c4; margin-top: 2px;">Publié le {{ review.createdAt | date('d/m/Y') }}</div>
+                    <div class="user_info_publish_date">Publié le {{ review.createdAt | date('d/m/Y') }}</div>
                 {% endif %}
             </div>
         </div>
@@ -20,27 +20,27 @@
 
     {# Bloc Album & Note #}
     {% if review.album %}
-        <div style="display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start;">
-            <img src="{{ review.album.coverImage | default('https://via.placeholder.com/130') }}" alt="Cover de {{ review.album.title }}" style="width: 130px; height: 130px; object-fit: cover; border-radius: 10px; flex-shrink: 0;">
+        <div class="review_card_album">
+            <img src="{{ review.album.coverImage | default('https://via.placeholder.com/130') }}" alt="Cover de {{ review.album.title }}" class="review_card_cover">
             
-            <div style="display: flex; flex-direction: column; justify-content: flex-start; padding-top: 2px;">
-                <h3 style="margin: 0; font-size: 1.4rem; font-weight: 500; color: #ffffff; line-height: 1.2;">{{ review.album.title }}</h3>
-                <div style="color: #a0a3c4; font-size: 1rem; margin-top: 4px; margin-bottom: 12px;">{{ review.album.artist }}</div>
+            <div class="review_card_details">
+                <h3 class="review_card_title">{{ review.album.title }}</h3>
+                <div class="review_card_artist">{{ review.album.artist }}</div>
                 
-                <div style="font-size: 2.2rem; font-weight: 500; color: #ffffff; line-height: 1;">
+                <div class="review_card_rating">
                     {{ review.rating }}/10
                 </div>
 
                 {# Affichage dynamique des étoiles #}
-                <div style="color: #ffffff; font-size: 1.1rem; letter-spacing: 2px; margin-top: 6px;">
+                <div class="review_card_stars">
                     {% set ratingOutOf5 = review.rating / 2 %}
                     {% for i in 1..5 %}
                         {% if ratingOutOf5 >= i %}
                             ★
                         {% elseif ratingOutOf5 >= (i - 0.5) %}
-                            <span style="opacity: 0.6;">★</span>
+                            <span class="review_card_star_half">★</span>
                         {% else %}
-                            <span style="opacity: 0.25;">★</span>
+                            <span class="review_card_star_empty">★</span>
                         {% endif %}
                     {% endfor %}
                 </div>
@@ -49,27 +49,42 @@
     {% endif %}
 
     {# Contenu de la review #}
-    <div style="color: #e0e2f0; font-size: 0.95rem; line-height: 1.45; margin-bottom: 20px; white-space: pre-line; max-height: 200px; overflow-y: auto;">
+    <div class="review_card_content">
         {{ review.content }}
     </div>
 
     {# Footer & Actions #}
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; padding-top: 8px;">
+    <div class="review_card_footer">
+        {# Bouton de Like #}
+            {% set isLiked = app.user and review.isLikedByUser(app.user) %}
+            <button 
+                type="button" 
+                class="like-btn {{ isLiked ? 'is-liked' : '' }}" 
+                data-url="{{ path('app_review_like', { id: review.id }) }}">
+                
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" 
+                     fill="{{ isLiked ? '#e63946' : 'none' }}" 
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                
+                <span class="like-count">{{ review.likes|length }}</span>
+            </button>
         
-        {# Actions de l'auteur & Historique #}
-        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center;">
+        {# Actions de l'auteur, Historique & Like #}
+        <div class="review_card_actions">
             {% if app.user and review.user == app.user %}
-                <button type="button" class="btn-choose-album" data-spotify-id="{{ review.album ? review.album.spotifyId : '' }}" style="background: rgba(255,255,255,0.15); color: #fff; padding: 6px 12px; border: none; border-radius: 20px; font-size: 0.8rem; cursor: pointer;">
+                <button type="button" class="btn-choose-album" data-spotify-id="{{ review.album ? review.album.spotifyId : '' }}">
                     + Nouvelle révision
                 </button>
 
-                <button type="button" class="btn-edit-review" data-id="{{ review.id }}" style="background: rgba(255,255,255,0.15); color: #fff; padding: 6px 12px; border: none; border-radius: 20px; font-size: 0.8rem; cursor: pointer;">
+                <button type="button" class="btn-edit-review" data-id="{{ review.id }}">
                     Modifier
                 </button>
 
-                <form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" onsubmit="return confirm('Supprimer cette critique ?');" style="display:inline; margin: 0;">
+                <form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" onsubmit="return confirm('Supprimer cette critique ?');" class="review_card_delete_form">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete_review_' ~ review.id) }}">
-                    <button type="submit" style="background: rgba(231, 76, 60, 0.3); color: #ff8b8b; border: 1px solid rgba(231, 76, 60, 0.4); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;">
+                    <button type="submit" class="btn-delete-review">
                         Supprimer
                     </button>
                 </form>
@@ -82,7 +97,7 @@
             {% endif %}
 
             {% if userReviewsCount > 1 %}
-                <button type="button" class="btn-history-review" data-id="{{ review.id }}" style="background: rgba(255,255,255,0.1); color: #e0e2f0; border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; cursor: pointer;">
+                <button type="button" class="btn-history-review" data-id="{{ review.id }}">
                     📜 Historique ({{ userReviewsCount }})
                 </button>
             {% endif %}
@@ -90,8 +105,8 @@
 
         {# Bouton d'écoute universel #}
         {% if review.album and review.album.spotifyId %}
-            <a href="https://open.spotify.com/album/{{ review.album.spotifyId }}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 8px; background: #ebba38; color: #000000; padding: 10px 24px; border-radius: 30px; font-size: 1rem; text-decoration: none; font-weight: 600; margin-left: auto;">
-                <span style="font-size: 0.8rem;">▶</span> Écouter
+            <a href="https://open.spotify.com/album/{{ review.album.spotifyId }}" target="_blank" rel="noopener noreferrer" class="review_card_btn_listen">
+                <span class="review_card_btn_listen_icon">▶</span> Écouter
             </a>
         {% endif %}
 

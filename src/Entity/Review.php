@@ -31,6 +31,10 @@ class Review
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'revisions')]
     private ?self $previousReview = null;
 
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'review_likes')]
+    private Collection $likes;
+
     /**
      * @var Collection<int, self>
      */
@@ -48,6 +52,7 @@ private ?Album $album = null;
     public function __construct()
     {
         $this->revisions = new ArrayCollection();
+        $this->likes = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -167,5 +172,35 @@ private ?Album $album = null;
         $this->album = $album;
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(User $user): self
+    {
+        if (!$this->likes->contains($user)) {
+            $this->likes->add($user);
+        }
+        return $this;
+    }
+
+    public function removeLike(User $user): self
+    {
+        $this->likes->removeElement($user);
+        return $this;
+    }
+
+    public function isLikedByUser(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+        return $this->likes->contains($user);
     }
 }

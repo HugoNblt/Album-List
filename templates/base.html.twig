@@ -1,167 +1,88 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="UTF-8">
-		<title>
-			{% block title %}Album List
-			{% endblock %}
-		</title>
-		<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css"> 
+    <head>
+        <meta charset="UTF-8">
+        <title>
+            {% block title %}Album List
+            {% endblock %}
+        </title>
+        {# <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">  #}
         {% block stylesheets %}
             <link href="{{ asset('css/styles.css') }}" type="text/css" rel="stylesheet">
         {% endblock %}
         
-	</head>
-		<body>
-			{% block header %}
-				<header>
-					<h1>Album List</h1>
-					<nav>
-						<ul>
-							<li><a href="{{ path('app_home') }}">Accueil</a></li>
-							{% if app.user %}
-								<li><a href="{{ path('app_profile') }}">Profil</a></li>
-								<li><a id="btn-open-review">Nouvelle Review</a></li>
-								<li class="profile_logout"><p style="margin: 0; display: inline;">{{ app.user.userIdentifier }}</p><a href="{{ path('app_logout') }}">Logout</a></li>
-							{% else %}
-								<li><a href="{{ path('app_login') }}">Login/Register</a></li>
-							{% endif %}
-						</ul>
-					</nav>
-				</header>
-			{% endblock %}
+    </head>
+    <body>
+        {% block header %}
+            <header>
+                <nav>
+                    <ul>
+                        <li><a href="{{ path('app_home') }}">Accueil</a></li>
+                        {% if app.user %}
+                            <li><a href="{{ path('app_profile') }}">Profil</a></li>
+                            <li><a id="btn-open-review">Nouvelle Review</a></li>
+                            <li class="profile_logout"><p style="margin: 0; display: inline;">{{ app.user.userIdentifier }}</p><a href="{{ path('app_logout') }}">Logout</a></li>
+                        {% else %}
+                            <li><a href="{{ path('app_login') }}">Login/Register</a></li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </header>
+        {% endblock %}
 
-			<main>
-				{% block body %}{% endblock %}
-			</main>
+        <main>
+            {% block body %}{% endblock %}
+        </main>
 
-			<!-- Modale unique native HTML5 -->
-			<dialog id="review-modal" style="padding: 25px; border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 650px; width: 95%;">
-				<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-					<h3 id="modal-title" style="margin:0;">Créer une review</h3>
-					<button type="button" onclick="document.getElementById('review-modal').close()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">✕</button>
-				</div>
-				<div id="modal-body"></div>
-			</dialog>
+        <!-- Modale unique native HTML5 -->
+        <dialog id="review-modal" style="padding: 25px; border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 650px; width: 95%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 id="modal-title" style="margin:0;">Créer une review</h3>
+                <button type="button" onclick="document.getElementById('review-modal').close()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">✕</button>
+            </div>
+            <div id="modal-body"></div>
+        </dialog>
 
-			{% block footer %}
-				<footer style="position: relative; bottom: 0;">@Designed By Hugo NOBLOT</footer>
-			{% endblock %}
+        {# Bouton fixe en bas à gauche #}
+<button type="button" id="btn-about-trigger" class="floating-help-btn" aria-label="À propos">
+    ?
+</button>
 
-			{% block javascripts %}
-				 <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        const btnOpen = document.getElementById('btn-open-review');
-                        const modal = document.getElementById('review-modal');
-                        const modalTitle = document.getElementById('modal-title');
-                
-                        if (btnOpen && modal) {
-                            btnOpen.addEventListener('click', () => {
-                                modalTitle.innerText = 'Créer une review';
-                                modal.showModal();
-                                loadModalContent('/modal/search-form');
-                            });
-                        }
-                
-                        document.body.addEventListener('click', function(e) {
-    // 1. Bouton Modifier une review
-    if (e.target.matches('.btn-edit-review') || e.target.closest('.btn-edit-review')) {
-        const btn = e.target.matches('.btn-edit-review') ? e.target : e.target.closest('.btn-edit-review');
-        const id = btn.getAttribute('data-id');
-        if (modal) {
-            modalTitle.innerText = 'Modifier la review';
-            modal.showModal();
-            loadModalContent(`/modal/edit/${id}`);
-        }
-    }
+{# Pop-up À propos & Changelog #}
+<dialog id="about-modal" class="app-modal">
+    <div class="modal-header">
+        <h2>À propos du projet</h2>
+        <button type="button" id="btn-close-about" class="modal-close-btn">&times;</button>
+    </div>
+    <div class="modal-body">
+        <section class="about-section">
+            <h3>🎯 Note d'intention</h3>
+            <p>
+                Cette application a été conçue comme un espace épuré de critique et de partage musical. 
+                L'idée est de privilégier une expérience mobile-first réactive, permettant d'évaluer des albums, 
+                de suivre l'évolution de ses avis grâce à un système de révisions, et de découvrir les retours de la communauté.
+            </p>
+        </section>
 
-    // 2. Bouton Choisir album / Nouvelle révision (OUVRE DÉSORMAIS LA MODALE)
-    if (e.target.matches('.btn-choose-album') || e.target.closest('.btn-choose-album')) {
-        const btn = e.target.matches('.btn-choose-album') ? e.target : e.target.closest('.btn-choose-album');
-        const spotifyId = btn.getAttribute('data-spotify-id');
-        if (modal) {
-            modalTitle.innerText = 'Écrire une review';
-            modal.showModal();
-            loadModalContent(`/modal/write/${spotifyId}`);
-        }
-    }
+        <hr class="modal-divider">
 
-    // 3. Bouton Retour dans la recherche
-    if (e.target.id === 'btn-back-search') {
-        modalTitle.innerText = 'Créer une review';
-        loadModalContent('/modal/search-form');
-    }
+        <section class="about-section">
+            <h3>📜 Changelog</h3>
+            <ul class="changelog-list">
+                <li><strong>v1.2 :</strong> Intégration du système de likes asynchrones et layout responsive Desktop.</li>
+                <li><strong>v1.1 :</strong> Ajout des modales AJAX (recherche Spotify, édition, révisions).</li>
+                <li><strong>v1.0 :</strong> Version initiale mobile (système de notation, cartes de critiques, profils).</li>
+            </ul>
+        </section>
+    </div>
+</dialog>
 
-    // 4. Bouton Historique des révisions
-    if (e.target.matches('.btn-history-review') || e.target.closest('.btn-history-review')) {
-        const btn = e.target.matches('.btn-history-review') ? e.target : e.target.closest('.btn-history-review');
-        const id = btn.getAttribute('data-id');
-        if (modal) {
-            modalTitle.innerText = 'Historique des révisions';
-            modal.showModal();
-            loadModalContent(`/modal/history/${id}`);
-        }
-    }
-});
-                
-                        // Délégation globale des soumissions de formulaires (dynamique & statique)
-                        document.body.addEventListener('submit', function(e) {
-                            // Formulaire de recherche
-                            if (e.target.id === 'modal-search-form') {
-                                e.preventDefault();
-                                const q = new FormData(e.target).get('q');
-                                loadModalContent(`/modal/search-results?q=${encodeURIComponent(q)}`);
-                            }
-                
-                            // Formulaire d'écriture
-                            if (e.target.id === 'modal-write-form') {
-                                e.preventDefault();
-                                handleAjaxFormPost(e.target);
-                            }
-                
-                            // Formulaire d'édition
-                            if (e.target.id === 'modal-edit-form') {
-                                e.preventDefault();
-                                handleAjaxFormPost(e.target);
-                            }
-                        });
-                    });
-                
-                    function loadModalContent(url) {
-                        const modalBody = document.getElementById('modal-body');
-                        if (modalBody) modalBody.innerHTML = '<p>Chargement...</p>';
-                        
-                        fetch(url)
-                            .then(response => {
-                                if (!response.ok) throw new Error('Erreur HTTP ' + response.status);
-                                return response.text();
-                            })
-                            .then(html => {
-                                if (modalBody) modalBody.innerHTML = html;
-                            })
-                            .catch(err => {
-                                if (modalBody) modalBody.innerHTML = `<p style="color:red;">Erreur : ${err.message}</p>`;
-                                console.error('Fetch error:', err);
-                            });
-                    }
-                
-                    function handleAjaxFormPost(form) {
-                        const formData = new FormData(form);
-                        fetch(form.action, {
-                            method: 'POST',
-                            body: formData,
-                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.status === 'success') {
-                                document.getElementById('review-modal').close();
-                                window.location.href = data.redirect;
-                            }
-                        })
-                        .catch(err => console.error('Erreur traitement formulaire AJAX:', err));
-                    }
-                </script>
-			{% endblock %}
-		</body>
-	</html>
+        {% block footer %}
+            <footer style="position: relative; bottom: 0;">@Designed By Hugo NOBLOT</footer>
+        {% endblock %}
+
+        {% block javascripts %}
+            <script src="{{ asset('js/app.js') }}" defer></script>
+        {% endblock %}
+    </body>
+</html>
