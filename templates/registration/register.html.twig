@@ -3,21 +3,58 @@
 {% block title %}Inscription{% endblock %}
 
 {% block body %}
-<div style="max-width: 450px; margin: 40px auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff;">
-    <h1 style="margin-top: 0;">Inscription</h1>
+<div class="register-container">
+    <div class="register-card">
+        <h1>Inscription</h1>
 
-    {{ form_errors(registrationForm) }}
+        {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
+            
+            {# Champ Pseudo #}
+            <div class="form-group">
+                {{ form_label(registrationForm.username) }}
+                {{ form_widget(registrationForm.username) }}
+                {% if registrationForm.username.vars.errors|length > 0 %}
+                    <div class="form-error">
+                        {% for error in registrationForm.username.vars.errors %}
+                            <span>{{ error.message }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-    {{ form_start(registrationForm) }}
-        {{ form_row(registrationForm.username) }}
-        {{ form_row(registrationForm.email) }}
-        {{ form_row(registrationForm.plainPassword, {
-            label: 'Mot de passe'
-        }) }}
+            {# Champ Email #}
+            <div class="form-group">
+                {{ form_label(registrationForm.email) }}
+                {{ form_widget(registrationForm.email) }}
+                {% if registrationForm.email.vars.errors|length > 0 %}
+                    <div class="form-error">
+                        {% for error in registrationForm.email.vars.errors %}
+                            <span>{{ error.message }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
 
-        <button type="submit" style="width: 100%; margin-top: 15px; padding: 10px; background: #1DB954; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
-            S'inscrire
-        </button>
-    {{ form_end(registrationForm) }}
+            {# Champ Mot de passe #}
+            <div class="form-group">
+                {{ form_label(registrationForm.plainPassword) }}
+                {{ form_widget(registrationForm.plainPassword) }}
+                {% if registrationForm.plainPassword.vars.errors|length > 0 %}
+                    <div class="form-error">
+                        {% for error in registrationForm.plainPassword.vars.errors %}
+                            <span>{{ error.message }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-primary-submit">S'inscrire</button>
+
+        {{ form_end(registrationForm) }}
+
+        <div class="register-footer-link">
+            Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a>
+        </div>
+    </div>
 </div>
 {% endblock %}

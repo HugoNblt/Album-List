@@ -90,11 +90,32 @@
                 </form>
             {% endif %}
 
-            {# Calcul sécurisé de l'historique #}
-            {% set userReviewsCount = 0 %}
-            {% if review.album and attribute(review.album, 'reviews') is defined and review.album.reviews is not empty %}
-                {% set userReviewsCount = review.album.reviews | filter(r => r.user and review.user and r.user.id == review.user.id) | length %}
-            {% endif %}
+{# Calcul sécurisé de l'historique (compatible Entités & Tableaux de recherche) #}
+{% set userReviewsCount = 0 %}
+
+{% if review.album is defined and review.album %}
+    {# Récupération sécurisée du tableau/collection de reviews #}
+    {% set albumReviews = null %}
+    
+    {% if review.album is iterable and 'reviews' in review.album|keys %}
+        {# Cas 1 : album est un tableau PHP avec une clé 'reviews' #}
+        {% set albumReviews = review.album['reviews'] %}
+    {% elseif review.album.reviews is defined %}
+        {# Cas 2 : album est une entité Doctrine avec la propriété 'reviews' #}
+        {% set albumReviews = review.album.reviews %}
+    {% endif %}
+
+    {# Filtrage des révisions de l'utilisateur #}
+    {% if albumReviews is not empty and review.user is defined and review.user %}
+        {% set userReviewsCount = albumReviews | filter(r => r.user is defined and r.user and r.user.id == review.user.id) | length %}
+    {% endif %}
+{% endif %}
+
+{% if userReviewsCount > 1 %}
+    <button type="button" class="btn-history-review" data-id="{{ review.id }}">
+        📜 Historique ({{ userReviewsCount }})
+    </button>
+{% endif %}
 
             {% if userReviewsCount > 1 %}
                 <button type="button" class="btn-history-review" data-id="{{ review.id }}">
