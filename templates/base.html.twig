@@ -7,6 +7,10 @@
             {% endblock %}
         </title>
         {# <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">  #}
+        {# <link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
+> #}
         {% block stylesheets %}
             <link href="{{ asset('css/styles.css') }}" type="text/css" rel="stylesheet">
         {% endblock %}
@@ -14,20 +18,31 @@
     </head>
     <body>
         {% block header %}
-            <header>
-                <nav>
-                    <ul>
-                        <li><a href="{{ path('app_home') }}">Accueil</a></li>
-                        {% if app.user %}
-                            <li><a href="{{ path('app_profile') }}">Profil</a></li>
-                            <li><a id="btn-open-review">Nouvelle Review</a></li>
-                            <li class="profile_logout"><p style="margin: 0; display: inline;">{{ app.user.userIdentifier }}</p><a href="{{ path('app_logout') }}">Logout</a></li>
-                        {% else %}
-                            <li><a href="{{ path('app_login') }}">Login/Register</a></li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            </header>
+            <header class="app-header">
+    <div class="header-container">
+        <nav class="top-nav">
+            <ul class="top-nav-list">
+                <li><a href="{{ path('app_home') }}" class="top-nav-link">Accueil</a></li>
+                {% if app.user %}
+                    <li><a href="{{ path('app_profile') }}" class="top-nav-link">Profil</a></li>
+                    
+                    {# Bouton qui déclenche la pop-up / modale #}
+                    <li>
+                        <button type="button" class="top-nav-link nav-btn-modal" id="open-new-review-modal">
+                            + Nouvelle Review
+                        </button>
+                    </li>
+                    
+                    <li><span class="top-nav-user">{{ app.user.username }}</span></li>
+                    <li><a href="{{ path('app_logout') }}" class="top-nav-link">Déconnexion</a></li>
+                {% else %}
+                    <li><a href="{{ path('app_login') }}" class="top-nav-link">Connexion</a></li>
+                    <li><a href="{{ path('app_register') }}" class="top-nav-link">Inscription</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</header>
         {% endblock %}
 
         <main>
