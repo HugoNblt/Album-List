@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier mon profil{% endblock %}
+
+{% block body %}
+<div class="register-container">
+    <div class="register-card profile-edit-card">
+        <h1>Modifier mon profil</h1>
+
+        {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            {# Photo de profil #}
+            <div class="form-group">
+                <div class="profile-edit-avatar">
+                    {% if app.user.avatar %}
+                        <img src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="Photo de profil actuelle" class="profile-avatar">
+                    {% else %}
+                        <div class="profile-avatar">{{ app.user.username|first|upper }}</div>
+                    {% endif %}
+                    <div class="profile-edit-avatar-fields">
+                        {{ form_label(form.avatarFile) }}
+                        {{ form_widget(form.avatarFile) }}
+                        {% if app.user.avatar %}
+                            <label class="profile-edit-checkbox">
+                                {{ form_widget(form.removeAvatar) }}
+                                {{ form.removeAvatar.vars.label }}
+                            </label>
+                        {% else %}
+                            {% do form.removeAvatar.setRendered %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% for error in form.avatarFile.vars.errors %}
+                    <div class="form-error">{{ error.message }}</div>
+                {% endfor %}
+            </div>
+
+            {# Pseudo #}
+            <div class="form-group">
+                {{ form_label(form.username) }}
+                {{ form_widget(form.username) }}
+                {% for error in form.username.vars.errors %}
+                    <div class="form-error">{{ error.message }}</div>
+                {% endfor %}
+            </div>
+
+            {# Description #}
+            <div class="form-group">
+                {{ form_label(form.bio) }}
+                {{ form_widget(form.bio) }}
+                {% for error in form.bio.vars.errors %}
+                    <div class="form-error">{{ error.message }}</div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn-primary-submit">Enregistrer</button>
+
+        {{ form_end(form) }}
+
+        <div class="register-footer-link">
+            <a href="{{ path('app_profile') }}">Retour au profil</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

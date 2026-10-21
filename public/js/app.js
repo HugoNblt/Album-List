@@ -98,14 +98,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = await response.json();
                     if (countSpan) countSpan.textContent = data.count;
 
+                    btnLike.classList.toggle('is-liked', data.isLiked);
                     if (heartIcon) {
-                        if (data.isLiked) {
-                            btnLike.style.color = '#e63946';
-                            heartIcon.setAttribute('fill', '#e63946');
-                        } else {
-                            btnLike.style.color = '#ffffff';
-                            heartIcon.setAttribute('fill', 'none');
-                        }
+                        heartIcon.setAttribute('fill', data.isLiked ? 'currentColor' : 'none');
                     }
                 }
             } catch (err) {
@@ -183,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (modalBody) modalBody.innerHTML = html;
             })
             .catch(err => {
-                if (modalBody) modalBody.innerHTML = `<p style="color:#e63946;">Erreur : ${err.message}</p>`;
+                if (modalBody) modalBody.innerHTML = `<p class="form-alert">Erreur : ${err.message}</p>`;
                 console.error('Fetch error:', err);
             });
     }

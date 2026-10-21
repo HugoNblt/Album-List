@@ -35,6 +35,27 @@ class ReviewRepository extends ServiceEntityRepository
     }
 
     /**
+     * Statistiques d'un utilisateur : albums uniques (révisions exclues) et artistes différents
+     *
+     * @return array{albums: int, artists: int}
+     */
+    public function getUserStats(User $user): array
+    {
+        $result = $this->createQueryBuilder('r')
+            ->select('COUNT(DISTINCT a.id) AS albums', 'COUNT(DISTINCT a.artist) AS artists')
+            ->innerJoin('r.album', 'a')
+            ->where('r.user = :user')
+            ->setParameter('user', $user)
+            ->getQuery()
+            ->getSingleResult();
+
+        return [
+            'albums' => (int) $result['albums'],
+            'artists' => (int) $result['artists'],
+        ];
+    }
+
+    /**
      * Recherche globale dans toutes les critiques
      */
     public function search(string $query): array

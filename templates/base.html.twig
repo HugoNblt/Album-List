@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
     <head>
         <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>
             {% block title %}Album List
             {% endblock %}
@@ -46,14 +47,17 @@
         {% endblock %}
 
         <main>
+            {% for message in app.flashes('success') %}
+                <div class="flash-message">{{ message }}</div>
+            {% endfor %}
             {% block body %}{% endblock %}
         </main>
 
         <!-- Modale unique native HTML5 -->
-        <dialog id="review-modal" style="padding: 25px; border-radius: 12px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 650px; width: 95%;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h3 id="modal-title" style="margin:0;">Créer une review</h3>
-                <button type="button" onclick="document.getElementById('review-modal').close()" style="background:none; border:none; font-size:1.2rem; cursor:pointer;">✕</button>
+        <dialog id="review-modal" class="app-modal app-modal--wide">
+            <div class="modal-header">
+                <h3 id="modal-title">Créer une review</h3>
+                <button type="button" class="modal-close-btn" onclick="document.getElementById('review-modal').close()" aria-label="Fermer">&times;</button>
             </div>
             <div id="modal-body"></div>
         </dialog>
@@ -67,7 +71,7 @@
 <dialog id="about-modal" class="app-modal">
     <div class="modal-header">
         <h2>À propos du projet</h2>
-        <button type="button" id="btn-close-about" class="modal-close-btn">&times;</button>
+        <button type="button" id="btn-close-about" class="modal-close-btn" aria-label="Fermer">&times;</button>
     </div>
     <div class="modal-body">
         <section class="about-section">
@@ -93,7 +97,7 @@
 </dialog>
 
         {% block footer %}
-            <footer style="position: relative; bottom: 0;">@Designed By Hugo NOBLOT</footer>
+            <footer class="app-footer">@Designed By Hugo NOBLOT</footer>
         {% endblock %}
 
         {% block javascripts %}

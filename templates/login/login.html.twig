@@ -3,22 +3,24 @@
 {% block title %}Log in!{% endblock %}
 
 {% block body %}
-    <form method="post">
+<div class="register-container">
+    <form method="post" class="register-card login-card">
+        <h1>Please sign in</h1>
+
         {% if error %}
-            <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            <div class="form-alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
         {% endif %}
 
         {% if app.user %}
-            <div class="mb-3">
+            <div class="register-footer-link">
                 You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
             </div>
         {% endif %}
 
-        <h1 class="h3 mb-3 font-weight-normal">Please sign in</h1>
         <label for="username">Email</label>
-        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-control" autocomplete="email" required autofocus>
+        <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-input" autocomplete="email" required autofocus>
         <label for="password">Password</label>
-        <input type="password" name="_password" id="password" class="form-control" autocomplete="current-password" required>
+        <input type="password" name="_password" id="password" class="form-input" autocomplete="current-password" required>
         <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 
         {#
@@ -31,10 +33,13 @@
             </div>
         #}
 
-        <button class="btn btn-lg btn-primary" type="submit">
+        <button class="btn-primary-submit" type="submit">
             Sign in
         </button>
-        <br>
-        <a href="{{ path('app_register') }}">Don't have an account ?</a>
+
+        <div class="register-footer-link">
+            <a href="{{ path('app_register') }}">Don't have an account ?</a>
+        </div>
     </form>
+</div>
 {% endblock %}

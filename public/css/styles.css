@@ -43,56 +43,420 @@
     box-sizing: border-box;
 }
 
+html {
+    font-size: 16px;
+}
+
 body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
     margin: 0;
-    padding: 0 0 80px 0;
+    padding: 0;
     background-color: #181828;
     color: var(--text-primary);
     font-family: var(--font-sans);
-    font-size: var(--fs-base);
+    font-size: clamp(0.95rem, 2vw + 0.45rem, 1rem);
     line-height: var(--lh-normal);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+img, svg, video {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+a, button, input, textarea, select {
+    font: inherit;
+}
+
+h1, h2, h3, h4, h5, h6, p, ul, ol {
+    margin-top: 0;
+}
+
+main {
+    flex: 1 0 auto;
+    width: 100%;
+}
+
+:focus-visible {
+    outline: 2px solid #8180e0;
+    outline-offset: 2px;
+}
+
+p, li, span, a, button, input, textarea, select {
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 /* ==========================================================================
-   2. GRILLE DE REVIEWS UNIFORME
+   PAGE D'ACCUEIL
    ========================================================================== */
-.reviews-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 20px;
-    padding: 16px;
-    justify-content: center;
+.home-page,
+.page-container {
+    width: min(100%, 1200px);
+    margin: 0 auto;
+    padding: 20px 16px 32px;
 }
 
 @media (min-width: 768px) {
-    .reviews-grid {
-        grid-template-columns: repeat(auto-fill, 340px);
-        gap: 24px;
-        padding: 24px;
+    .home-page,
+    .page-container {
+        padding: 32px 24px 48px;
     }
 }
 
+.page-title {
+    margin-bottom: 20px;
+    font-size: var(--fs-xl);
+    line-height: var(--lh-tight);
+}
+
+.page-search-form {
+    justify-content: flex-start;
+    margin: 0 0 24px;
+}
+
+.home-intro {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.home-title {
+    margin-bottom: 0;
+    font-size: var(--fs-xl);
+    line-height: var(--lh-tight);
+}
+
+.home-search-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.main_searchbar {
+    flex: 1;
+    min-width: 0;
+    max-width: 480px;
+    padding: 12px 15px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 25px;
+    background: #23233c;
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.main_searchbar::placeholder {
+    color: var(--text-secondary);
+}
+
+.main_searchbar:focus {
+    border-color: #8180e0;
+    outline: 2px solid rgba(129, 128, 224, 0.25);
+}
+
+.home-search-button,
+.home-search-reset {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 20px;
+    border: 0;
+    border-radius: 25px;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+.home-search-button {
+    background: #1db954;
+    color: #fff;
+}
+
+.home-search-reset {
+    padding-right: 16px;
+    padding-left: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+}
+
+.home-section-title {
+    margin: 0 0 16px;
+    font-size: var(--fs-lg);
+    line-height: var(--lh-tight);
+}
+
+.home-users-title {
+    margin-top: 30px;
+}
+
+.home-user-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.home-user-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px 8px 8px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    background: #23233c;
+    color: var(--text-primary);
+    font-weight: 700;
+    text-decoration: none;
+    transition: border-color 0.2s ease;
+}
+
+.home-user-link:hover {
+    border-color: #8180e0;
+}
+
+.home-user-avatar {
+    display: inline-flex;
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #8180e0;
+    color: #fff;
+    font-size: var(--fs-xs);
+}
+
+.home-reviews-section {
+    margin-top: 20px;
+}
+
+.home-empty-state {
+    margin-top: 20px;
+    padding: 32px 20px;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    background: #23233c;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.home-empty-state p {
+    margin: 0;
+}
+
+.reviews-grid > .home-empty-state {
+    margin-top: 0;
+}
+
 /* ==========================================================================
-   3. COMPOSANT REVIEW CARD & TYPOGRAPHIE
+   PROFIL PUBLIC
    ========================================================================== */
+.profile-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 28px;
+    padding: 20px;
+    border-radius: 16px;
+    background: #23233c;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.profile-avatar {
+    display: flex;
+    width: 56px;
+    height: 56px;
+    flex: 0 0 56px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #8180e0;
+    color: #fff;
+    font-size: var(--fs-lg);
+    font-weight: 700;
+    object-fit: cover;
+}
+
+@media (min-width: 768px) {
+    .profile-header {
+        align-items: center;
+        gap: 24px;
+        padding: 28px;
+    }
+
+    .profile-avatar {
+        width: 96px;
+        height: 96px;
+        flex-basis: 96px;
+        font-size: var(--fs-xl);
+    }
+}
+
+.profile-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-title-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px 16px;
+}
+
+.profile-edit-link {
+    padding: 6px 14px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.profile-edit-link:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.profile-bio {
+    margin: 10px 0 0;
+    color: #e0e2f0;
+    font-size: var(--fs-base);
+    line-height: var(--lh-relaxed);
+    white-space: pre-line;
+}
+
+.profile-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    margin: 12px 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+.profile-stats strong {
+    color: var(--text-accent);
+    font-size: var(--fs-md);
+}
+
+/* Édition du profil */
+.profile-edit-card {
+    max-width: 480px;
+}
+
+.profile-edit-avatar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.profile-edit-avatar-fields {
+    flex: 1;
+    min-width: 0;
+}
+
+.profile-edit-avatar-fields .form-input {
+    padding: 8px;
+    font-size: var(--fs-sm);
+}
+
+.register-card .profile-edit-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 10px 0 0;
+    font-weight: 400;
+    cursor: pointer;
+}
+
+textarea.form-input {
+    resize: vertical;
+}
+
+.flash-message {
+    width: min(100% - 32px, 1200px);
+    margin: 16px auto 0;
+    padding: 12px 16px;
+    border-radius: 10px;
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+.profile-name {
+    margin: 0;
+    font-size: var(--fs-xl);
+    line-height: var(--lh-tight);
+}
+
+.profile-subtitle {
+    margin: 4px 0 0;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+/* ==========================================================================
+   GRILLE DE REVIEWS
+   ========================================================================== */
+/* Mobile : 1 colonne pleine largeur (plafonnée pour rester lisible).
+   Tablette+ : colonnes de largeur égale (min 300px) qui remplissent la ligne,
+   soit 2 colonnes en tablette et 3 en desktop dans le conteneur de 1200px. */
+.reviews-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 520px;
+    margin: 20px auto 0;
+    align-items: stretch;
+}
+
+@media (min-width: 640px) {
+    .reviews-grid {
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+        gap: 24px;
+        max-width: none;
+    }
+}
+
+/* Messages d'état vide sur toute la largeur de la grille */
+.reviews-grid > :not(.review-card) {
+    grid-column: 1 / -1;
+}
+
+/* ==========================================================================
+   CARTES DE REVIEW
+   ========================================================================== */
+/* Pas de hauteur fixe : les cartes d'une même ligne s'alignent via le stretch
+   de la grille, et le footer est poussé en bas par margin-top: auto. */
 .review-card {
     display: flex;
     flex-direction: column;
-    height: 460px;
     width: 100%;
-    max-width: 360px;
-    margin: 0 auto;
+    min-width: 0;
     background: #23233c;
     border-radius: 16px;
-    padding: 20px;
+    padding: 16px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 @media (min-width: 768px) {
     .review-card {
-        max-width: 100%;
-        margin: 0;
+        padding: 20px;
     }
 }
 
@@ -102,6 +466,7 @@ body {
     align-items: center;
     gap: 10px;
     margin-bottom: 12px;
+    min-width: 0;
 }
 
 .user_info_pp {
@@ -115,18 +480,21 @@ body {
     color: var(--text-secondary);
     font-size: var(--fs-sm);
     font-weight: 600;
+    flex-shrink: 0;
 }
 
 .user_info_name {
     font-weight: 600;
     font-size: var(--fs-base);
     line-height: var(--lh-tight);
+    word-break: break-word;
 }
 
 .user_info_publish_date {
     font-size: var(--fs-xs);
     color: var(--text-secondary);
     margin-top: 2px;
+    line-height: 1.4;
 }
 
 /* Album & Note */
@@ -135,11 +503,13 @@ body {
     gap: 12px;
     margin-bottom: 14px;
     align-items: flex-start;
+    min-width: 0;
 }
 
 .review_card_cover {
-    width: 100px;
-    height: 100px;
+    width: clamp(80px, 24vw, 100px);
+    height: auto;
+    aspect-ratio: 1;
     object-fit: cover;
     border-radius: 8px;
     flex-shrink: 0;
@@ -148,6 +518,8 @@ body {
 .review_card_details {
     display: flex;
     flex-direction: column;
+    min-width: 0;
+    flex: 1;
 }
 
 .review_card_title {
@@ -156,9 +528,12 @@ body {
     font-weight: 700;
     color: var(--text-primary);
     line-height: var(--lh-tight);
+    word-break: break-word;
+    overflow-wrap: anywhere;
     /* Évite que le titre ne déborde si trop long */
-    /* display: -webkit-box;
-    -webkit-line-clamp: 2; */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -169,10 +544,12 @@ body {
     margin-top: 4px;
     margin-bottom: 8px;
     line-height: var(--lh-tight);
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .review_card_rating {
-    font-size: var(--fs-rating);
+    font-size: clamp(1.5rem, 4vw, var(--fs-rating));
     font-weight: 800;
     color: var(--text-primary);
     line-height: 1;
@@ -184,6 +561,7 @@ body {
     font-size: var(--fs-sm);
     letter-spacing: 2px;
     margin-top: 4px;
+    line-height: 1.2;
 }
 
 .review_card_star_half { opacity: 0.6; }
@@ -191,19 +569,21 @@ body {
 
 /* Contenu du texte de la review */
 .review_card_content {
-    flex: 1;
     color: #e0e2f0;
     font-size: var(--fs-base);
-    line-height: var(--lh-relaxed); /* Interligne aéré pour confort de lecture */
+    line-height: var(--lh-relaxed);
     margin-bottom: 12px;
-
+    min-height: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    white-space: normal;
     /* Tronquage propre sur 5 lignes */
-    /* display: -webkit-box;
-    -webkit-line-clamp: 5; */
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-overflow: ellipsis;
-    word-break: break-word;
 }
 
 /* Actions & Footer */
@@ -218,6 +598,19 @@ body {
     border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.review_card_actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    justify-content: flex-start;
+    min-width: 0;
+}
+
+.review_card_actions:not(:has(button)) {
+    display: none;
+}
+
 .btn-choose-album,
 .btn-edit-review,
 .btn-history-review,
@@ -228,6 +621,8 @@ body {
     border-radius: 16px;
     border: none;
     cursor: pointer;
+    line-height: 1.4;
+    white-space: normal;
 }
 
 .btn-choose-album,
@@ -235,6 +630,12 @@ body {
 .btn-history-review {
     background: rgba(255, 255, 255, 0.12);
     color: var(--text-primary);
+}
+
+.btn-choose-album--primary {
+    flex-shrink: 0;
+    background: #2ecc71;
+    color: #fff;
 }
 
 .btn-delete-review {
@@ -253,15 +654,26 @@ body {
     gap: 6px;
     font-weight: 700;
     font-size: var(--fs-sm);
+    line-height: 1.2;
+    padding: 4px 0;
 }
 
 .like-btn.is-liked {
     color: #e63946;
 }
 
+.like-btn.is-liked .heart-icon {
+    fill: currentColor;
+}
+
+.like-btn .heart-icon {
+    flex-shrink: 0;
+}
+
 .review_card_btn_listen {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     background: var(--text-accent);
     color: #000000;
@@ -271,10 +683,12 @@ body {
     text-decoration: none;
     font-weight: 700;
     margin-left: auto;
+    line-height: 1.2;
+    text-align: center;
 }
 
 /* ==========================================================================
-   4. FORMULAIRES ET PAGES (Inscriptions / Connexion)
+   FORMULAIRES D'INSCRIPTION ET DE CONNEXION
    ========================================================================== */
 .register-container {
     display: flex;
@@ -305,7 +719,8 @@ body {
     margin-bottom: 16px;
 }
 
-.register-card label {
+.register-card label,
+.login-card label {
     display: block;
     color: var(--text-secondary);
     font-size: var(--fs-sm);
@@ -322,6 +737,19 @@ body {
     color: var(--text-primary);
     font-size: var(--fs-base); /* Évite le zoom automatique sur iOS (≥16px / 1rem) */
     outline: none;
+}
+
+.login-card .form-input + label {
+    margin-top: 16px;
+}
+
+.form-alert {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: rgba(230, 57, 70, 0.15);
+    color: var(--text-error);
+    font-size: var(--fs-sm);
 }
 
 .form-input:focus {
@@ -362,11 +790,11 @@ body {
 }
 
 /* ==========================================================================
-   5. BOUTON FLOATTANT (?) & MODALES
+   MODALES ET BOUTON D'AIDE
    ========================================================================== */
 .floating-help-btn {
     position: fixed;
-    bottom: 85px;
+    bottom: 16px;
     left: 16px;
     width: 44px;
     height: 44px;
@@ -382,20 +810,340 @@ body {
 }
 
 .app-modal {
+    width: calc(100% - 24px);
+    max-width: 480px;
+    max-height: calc(100dvh - 24px);
+    padding: 20px;
+    overflow-y: auto;
     border: none;
     border-radius: 16px;
     background: #23233c;
     color: var(--text-primary);
-    padding: 24px;
-    width: 92%;
-    max-width: 480px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.modal-header h2 {
+.app-modal--wide {
+    max-width: 650px;
+}
+
+@media (min-width: 768px) {
+    .app-modal {
+        padding: 28px;
+    }
+}
+
+.app-modal::backdrop {
+    background: rgba(10, 10, 20, 0.7);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.modal-header h2,
+.modal-header h3 {
     margin: 0;
     font-size: var(--fs-lg);
     font-weight: 700;
+    line-height: var(--lh-tight);
+}
+
+.modal-close-btn {
+    display: inline-flex;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-primary);
+    font-size: 1.4rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.modal-close-btn:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.modal-divider {
+    margin: 20px 0;
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.loading-text,
+.modal-empty {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+/* Recherche & résultats Spotify */
+.modal-search-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.modal-search-form .search-input {
+    min-width: 0;
+}
+
+.modal-results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: min(400px, 55dvh);
+    overflow-y: auto;
+}
+
+.modal-result {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: #181828;
+}
+
+.modal-result-cover {
+    width: 50px;
+    height: 50px;
+    flex-shrink: 0;
+    border-radius: 6px;
+    object-fit: cover;
+}
+
+.modal-result-info {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.modal-result-info small {
+    color: var(--text-secondary);
+}
+
+/* Écriture / édition */
+.modal-review-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.modal-album {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-album-cover {
+    width: 72px;
+    flex-shrink: 0;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.modal-album-title {
+    margin: 0 0 2px;
+    font-size: var(--fs-md);
+    line-height: var(--lh-tight);
+}
+
+.modal-album-artist {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+@media (min-width: 640px) {
+    .modal-review-layout {
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 24px;
+    }
+
+    .modal-album {
+        width: 140px;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .modal-album-cover {
+        width: 100%;
+    }
+}
+
+.modal-form {
+    flex: 1;
+    min-width: 0;
+}
+
+.modal-form form > div:not(.modal-actions) {
+    margin-bottom: 14px;
+}
+
+.modal-form label {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+.modal-form input,
+.modal-form textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    background: #181828;
+    color: var(--text-primary);
+    font-size: 1rem; /* ≥16px : évite le zoom automatique sur iOS */
+}
+
+.modal-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.modal-form input:focus,
+.modal-form textarea:focus {
+    border-color: #8180e0;
+    outline: none;
+}
+
+.modal-form ul {
+    margin: 6px 0 0;
+    padding: 0;
+    list-style: none;
+    color: var(--text-error);
+    font-size: var(--fs-xs);
+}
+
+.modal-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+}
+
+.btn-modal-primary,
+.btn-modal-secondary {
+    flex: 1 1 auto;
+    min-height: 44px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 24px;
+    font-size: var(--fs-sm);
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-modal-primary {
+    background: #2ecc71;
+    color: #fff;
+}
+
+.btn-modal-secondary {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-primary);
+}
+
+@media (min-width: 640px) {
+    .btn-modal-primary,
+    .btn-modal-secondary {
+        flex: 0 0 auto;
+    }
+}
+
+/* Historique des révisions */
+.history-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.history-cover {
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.history-meta {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: min(420px, 55dvh);
+    padding-right: 4px;
+    overflow-y: auto;
+}
+
+.history-item {
+    padding: 12px 14px;
+    border-left: 4px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    background: #181828;
+}
+
+.history-item.is-latest {
+    border-left-color: #2ecc71;
+}
+
+.history-item-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px 12px;
+    margin-bottom: 6px;
+}
+
+.history-item-rating {
+    font-weight: 700;
+}
+
+.history-badge {
+    margin-left: 6px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #2ecc71;
+    color: #fff;
+    font-size: 0.7rem;
+}
+
+.history-item-date {
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+}
+
+.history-item-content {
+    margin: 0;
+    color: #e0e2f0;
+    font-size: var(--fs-base);
+    line-height: var(--lh-relaxed);
+    white-space: pre-line;
 }
 
 .about-section h3 {
@@ -435,27 +1183,16 @@ body {
 }
 
 /* ==========================================================================
-   6. AJUSTEMENTS DESKTOP
-   ========================================================================== */
-@media (min-width: 992px) {
-    body {
-        padding-bottom: 0;
-    }
-
-    .floating-help-btn {
-        bottom: 25px;
-        left: 280px;
-    }
-}
-
-/* ==========================================================================
-   7. EN-TÊTE, NAVIGATION HAUTE & BARRE DE RECHERCHE
+   EN-TÊTE ET NAVIGATION
    ========================================================================== */
 
 /* Structure du Header */
 .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
     background: #23233c;
-    padding: 16px 20px;
+    padding: 12px 16px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
@@ -482,6 +1219,9 @@ body {
 }
 
 .top-nav-link {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
     color: var(--text-secondary);
     font-size: var(--fs-sm);
     font-weight: 600;
@@ -499,7 +1239,7 @@ body {
     font-weight: 700;
 }
 
-/* Titre d'accueil (Hero) */
+/* Titre de page */
 .hero-title {
     font-size: var(--fs-xl);
     font-weight: 800;
@@ -510,7 +1250,7 @@ body {
     line-height: var(--lh-tight);
 }
 
-/* Formulaire de Recherche */
+/* Recherche */
 .search-form {
     display: flex;
     align-items: center;
@@ -563,14 +1303,59 @@ body {
     transform: scale(0.97);
 }
 
-/* Ajustements Desktop (≥ 768px) */
+/* ==========================================================================
+   AJUSTEMENTS RESPONSIVE
+   ========================================================================== */
+/* Pied de page */
+.app-footer {
+    padding: 24px 16px 72px; /* espace pour le bouton d'aide flottant */
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    text-align: center;
+}
+
+@media (max-width: 767px) {
+    .home-search-form {
+        flex-wrap: wrap;
+    }
+
+    .main_searchbar {
+        flex: 1 1 100%;
+        max-width: none;
+    }
+
+    .home-search-button,
+    .home-search-reset {
+        flex: 1 1 auto;
+    }
+
+    /* Actions de l'auteur sur leur propre ligne, like + écouter alignés */
+    .review_card_actions {
+        order: 3;
+        flex-basis: 100%;
+    }
+}
+
 @media (min-width: 768px) {
+    .app-header {
+        padding: 16px 24px;
+    }
+
     .header-container {
         flex-direction: row;
-        justify-content: space-between;
+        justify-content: center;
     }
 
     .top-nav-list {
         gap: 32px;
+    }
+
+    .floating-help-btn {
+        bottom: 24px;
+        left: 24px;
+    }
+
+    .app-footer {
+        padding-bottom: 24px;
     }
 }

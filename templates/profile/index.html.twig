@@ -3,38 +3,65 @@
 {% block title %}Profil de {{ user.username }}{% endblock %}
 
 {% block body %}
-    <div class="container" style="max-width: 900px; margin: 40px auto; padding: 0 20px;">
-        <h1 style="margin-bottom: 20px;">Dernières critiques d'album par {{ user.username }}</h1>
+    <div class="page-container">
+        {# En-tête du profil : photo, description & statistiques #}
+        <section class="profile-header">
+            {% if user.avatar %}
+                <img src="{{ asset('uploads/avatars/' ~ user.avatar) }}" alt="Photo de profil de {{ user.username }}" class="profile-avatar">
+            {% else %}
+                <div class="profile-avatar">{{ user.username|first|upper }}</div>
+            {% endif %}
+
+            <div class="profile-info">
+                <div class="profile-title-row">
+                    <h1 class="profile-name">{{ user.username }}</h1>
+                    {% if app.user and app.user.id == user.id %}
+                        <a href="{{ path('app_profile_edit') }}" class="profile-edit-link">Modifier le profil</a>
+                    {% endif %}
+                </div>
+
+                {% if user.bio %}
+                    <p class="profile-bio">{{ user.bio }}</p>
+                {% endif %}
+
+                <ul class="profile-stats">
+                    <li><strong>{{ stats.albums }}</strong> album{{ stats.albums > 1 ? 's' : '' }} critiqué{{ stats.albums > 1 ? 's' : '' }}</li>
+                    <li><strong>{{ stats.artists }}</strong> artiste{{ stats.artists > 1 ? 's' : '' }} différent{{ stats.artists > 1 ? 's' : '' }}</li>
+                </ul>
+            </div>
+        </section>
+
+        <h2 class="home-section-title">Dernières critiques d'album par {{ user.username }}</h2>
 
         {# Formulaire de recherche interne au profil #}
-        <form method="GET" action="{{ path('app_profile_show', { username: user.username }) }}" style="display: flex; gap: 10px; margin-bottom: 30px;">
+        <form method="GET" action="{{ path('app_profile_show', { username: user.username }) }}" class="home-search-form page-search-form">
             <input 
                 type="search" 
                 name="q" 
                 value="{{ q|default('') }}" 
-                placeholder="Rechercher dans les avis de {{ user.username }}..." 
-                style="flex: 1; padding: 12px 15px; border: 1px solid #444; background: #181818; color: #fff; border-radius: 6px; font-size: 1rem;"
+                placeholder="Rechercher dans les avis de {{ user.username }}..."
+                class="main_searchbar"
             >
-            <button type="submit" style="padding: 12px 20px; background: #1DB954; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            <button type="submit" class="home-search-button">
                 Rechercher
             </button>
             {% if q is defined and q is not empty %}
-                <a href="{{ path('app_profile_show', { username: user.username }) }}" style="padding: 12px 18px; background: #444; color: white; text-decoration: none; border-radius: 6px; display: inline-flex; align-items: center; font-size: 0.9rem;">
+                <a href="{{ path('app_profile_show', { username: user.username }) }}" class="home-search-reset">
                     Réinitialiser
                 </a>
             {% endif %}
         </form>
 
         {# Liste des critiques #}
-        <div class="reviews-feed" style="display: flex; flex-direction: column; gap: 20px;">
+        <div class="reviews-feed reviews-grid">
             {% for review in reviews %}
                 {% include 'review/_review_card.html.twig' with { review: review } %}
             {% else %}
-                <div style="text-align: center; padding: 40px; background: #181818; border-radius: 8px; color: #b3b3b3;">
+                <div class="home-empty-state">
                     {% if q is defined and q is not empty %}
-                        <p style="margin: 0;">Aucune critique ne correspond à « {{ q }} » pour ce profil.</p>
+                        <p>Aucune critique ne correspond à « {{ q }} » pour ce profil.</p>
                     {% else %}
-                        <p style="margin: 0;">Aucune critique rédigée pour le moment.</p>
+                        <p>Aucune critique rédigée pour le moment.</p>
                     {% endif %}
                 </div>
             {% endfor %}

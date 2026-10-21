@@ -1,5 +1,4 @@
 <div class="review-card">
-    
     {# Header : Utilisateur & Date #}
     {% if review.user %}
         {% set authorName = review.user.username ?: review.user.userIdentifier %}
@@ -12,7 +11,7 @@
             <div>
                 <div class="user_info_name">{{ authorName }}</div>
                 {% if review.createdAt %}
-                    <div class="user_info_publish_date">Publié le {{ review.createdAt | date('d/m/Y') }}</div>
+                    <div class="user_info_publish_date">Publié le {{ review.createdAt|date('d/m/Y') }}</div>
                 {% endif %}
             </div>
         </div>
@@ -21,7 +20,7 @@
     {# Bloc Album & Note #}
     {% if review.album %}
         <div class="review_card_album">
-            <img src="{{ review.album.coverImage | default('https://via.placeholder.com/130') }}" alt="Cover de {{ review.album.title }}" class="review_card_cover">
+            <img src="{{ review.album.coverImage|default('https://via.placeholder.com/130') }}" alt="Cover de {{ review.album.title }}" class="review_card_cover">
             
             <div class="review_card_details">
                 <h3 class="review_card_title">{{ review.album.title }}</h3>
@@ -56,20 +55,30 @@
     {# Footer & Actions #}
     <div class="review_card_footer">
         {# Bouton de Like #}
-            {% set isLiked = app.user and review.isLikedByUser(app.user) %}
-            <button 
-                type="button" 
-                class="like-btn {{ isLiked ? 'is-liked' : '' }}" 
-                data-url="{{ path('app_review_like', { id: review.id }) }}">
+        {% set isLiked = app.user and review.isLikedByUser(app.user) %}
+        <button
+            type="button"
+            class="like-btn {{ isLiked ? 'is-liked' : '' }}"
+            data-url="{{ path('app_review_like', { id: review.id }) }}"
+        >
                 
-                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" 
-                     fill="{{ isLiked ? '#e63946' : 'none' }}" 
-                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                </svg>
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="22"
+                height="22"
+                viewBox="0 0 24 24"
+                fill="{{ isLiked ? 'currentColor' : 'none' }}"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="heart-icon"
+            >
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
                 
-                <span class="like-count">{{ review.likes|length }}</span>
-            </button>
+            <span class="like-count">{{ review.likes|length }}</span>
+        </button>
         
         {# Actions de l'auteur, Historique & Like #}
         <div class="review_card_actions">
@@ -90,32 +99,26 @@
                 </form>
             {% endif %}
 
-{# Calcul sécurisé de l'historique (compatible Entités & Tableaux de recherche) #}
-{% set userReviewsCount = 0 %}
+            {# Calcul sécurisé de l'historique (compatible Entités & Tableaux de recherche) #}
+            {% set userReviewsCount = 0 %}
 
-{% if review.album is defined and review.album %}
-    {# Récupération sécurisée du tableau/collection de reviews #}
-    {% set albumReviews = null %}
+            {% if review.album is defined and review.album %}
+                {# Récupération sécurisée du tableau/collection de reviews #}
+                {% set albumReviews = null %}
     
-    {% if review.album is iterable and 'reviews' in review.album|keys %}
-        {# Cas 1 : album est un tableau PHP avec une clé 'reviews' #}
-        {% set albumReviews = review.album['reviews'] %}
-    {% elseif review.album.reviews is defined %}
-        {# Cas 2 : album est une entité Doctrine avec la propriété 'reviews' #}
-        {% set albumReviews = review.album.reviews %}
-    {% endif %}
+                {% if review.album is iterable and 'reviews' in review.album|keys %}
+                    {# Cas 1 : album est un tableau PHP avec une clé 'reviews' #}
+                    {% set albumReviews = review.album['reviews'] %}
+                {% elseif review.album.reviews is defined %}
+                    {# Cas 2 : album est une entité Doctrine avec la propriété 'reviews' #}
+                    {% set albumReviews = review.album.reviews %}
+                {% endif %}
 
-    {# Filtrage des révisions de l'utilisateur #}
-    {% if albumReviews is not empty and review.user is defined and review.user %}
-        {% set userReviewsCount = albumReviews | filter(r => r.user is defined and r.user and r.user.id == review.user.id) | length %}
-    {% endif %}
-{% endif %}
-
-{% if userReviewsCount > 1 %}
-    <button type="button" class="btn-history-review" data-id="{{ review.id }}">
-        📜 Historique ({{ userReviewsCount }})
-    </button>
-{% endif %}
+                {# Filtrage des révisions de l'utilisateur #}
+                {% if albumReviews is not empty and review.user is defined and review.user %}
+                    {% set userReviewsCount = albumReviews|filter(r => r.user is defined and r.user and r.user.id == review.user.id)|length %}
+                {% endif %}
+            {% endif %}
 
             {% if userReviewsCount > 1 %}
                 <button type="button" class="btn-history-review" data-id="{{ review.id }}">
@@ -130,6 +133,5 @@
                 <span class="review_card_btn_listen_icon">▶</span> Écouter
             </a>
         {% endif %}
-
     </div>
 </div>
