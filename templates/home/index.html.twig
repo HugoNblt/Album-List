@@ -5,49 +5,60 @@
 {% endblock %}
 
 {% block body %}
-	<div class="home-page">
+	<div class="container page">
 		{# Barre de recherche #}
-		<div class="home-intro">
-			<h1 class="home-title">Découvrez & Partagez de la Musique</h1>
-			<form action="{{ path('app_home') }}" method="get" class="home-search-form">
-				<input type="search" class="main_searchbar" name="q" value="{{ q|default('') }}" placeholder="Rechercher un album, un artiste ou un profil...">
-				<button type="submit" class="home-search-button">Rechercher</button>
+		<form action="{{ path('app_home') }}" method="get" class="search-block search-block--hero" role="search">
+			<div class="search-block__field">
+				<label for="home-q" class="eyebrow">Fouiller le bac — album, artiste ou profil</label>
+				<input type="search" id="home-q" class="search-block__input" name="q" value="{{ q|default('') }}" placeholder="ex. Sleep Token">
+			</div>
+			<div class="search-block__actions">
+				<button type="submit" class="btn btn--accent">Chercher →</button>
 				{% if query %}
-					<a href="{{ path('app_home') }}" class="home-search-reset">
-						Réinitialiser
-					</a>
+					<a href="{{ path('app_home') }}" class="btn">Réinitialiser</a>
 				{% endif %}
-			</form>
-		</div>
+			</div>
+		</form>
 
 		{# SECTION : Résultats de la recherche Utilisateurs #}
 		{% if users is defined and users is not empty %}
-			<h2 class="home-section-title home-users-title">Profils trouvés ({{ users|length }})</h2>
-			<div class="home-user-list">
+			<div class="section-head">
+				<h2 class="section-title section-title--sm">Profils trouvés</h2>
+				<p class="eyebrow">{{ '%02d'|format(users|length) }} profil{{ users|length > 1 ? 's' }}</p>
+			</div>
+			<ul class="user-chips">
 				{% for u in users %}
 					{% if u.username is not empty %}
-						<a href="{{ path('app_profile_show', { username: u.username }) }}" class="home-user-link">
-							<span class="home-user-avatar">
-								{{ u.username|first|upper }}
-							</span>
-							{{ u.username }}
-						</a>
+						<li>
+							<a href="{{ path('app_profile_show', { username: u.username }) }}" class="user-chip">
+								{% if u.avatar %}
+									<img src="{{ asset('uploads/avatars/' ~ u.avatar) }}" alt="" class="avatar avatar--xs">
+								{% else %}
+									<span class="avatar avatar--xs" aria-hidden="true">{{ u.username|first|upper }}</span>
+								{% endif %}
+								{{ u.username }}
+							</a>
+						</li>
 					{% endif %}
 				{% endfor %}
-			</div>
+			</ul>
 		{% endif %}
 
 		{# SECTION : Critiques (Fil principal ou Résultats) #}
-		<section class="home-reviews-section">
-			{% if query %}
-				<h2 class="home-section-title">Critiques trouvées ({{ reviews|length }})</h2>
-			{% else %}
-				<h2 class="home-section-title">Dernières critiques de la communauté</h2>
-			{% endif %}
+		<section>
+			<div class="section-head">
+				{% if query %}
+					<h1 class="section-title">Critiques<br>trouvées</h1>
+					<p class="eyebrow">{{ '%02d'|format(reviews|length) }} entrée{{ reviews|length > 1 ? 's' }} pour « {{ query }} »</p>
+				{% else %}
+					<h1 class="section-title">Dernières<br>critiques</h1>
+					<p class="eyebrow">{{ '%02d'|format(reviews|length) }} entrée{{ reviews|length > 1 ? 's' }} · triées par date</p>
+				{% endif %}
+			</div>
 
 			{% if reviews is empty %}
-				<div class="home-empty-state">
-					<p>Aucune critique trouvée pour "{{ query }}".</p>
+				<div class="empty-state">
+					<p>Aucune critique trouvée pour « {{ query }} ».</p>
 				</div>
 			{% else %}
 				<div class="reviews-grid">
@@ -57,6 +68,5 @@
 				</div>
 			{% endif %}
 		</section>
-
 	</div>
 {% endblock %}

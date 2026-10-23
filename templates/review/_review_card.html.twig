@@ -1,137 +1,89 @@
-<div class="review-card">
-    {# Header : Utilisateur & Date #}
-    {% if review.user %}
-        {% set authorName = review.user.username ?: review.user.userIdentifier %}
-        <div class="user_info">
-            <div class="user_info_pp">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-            </div>
-            <div>
-                <div class="user_info_name">{{ authorName }}</div>
+<article class="review-card">
+    {# Header : Utilisateur, date & numéro de fiche #}
+    <div class="review-card__head">
+        {% if review.user %}
+            {% set authorName = review.user.username ?: review.user.userIdentifier %}
+            {% if review.user.avatar %}
+                <img src="{{ asset('uploads/avatars/' ~ review.user.avatar) }}" alt="" class="avatar avatar--sm">
+            {% else %}
+                <span class="avatar avatar--sm" aria-hidden="true">{{ authorName|first|upper }}</span>
+            {% endif %}
+            <div class="review-card__author">
+                <a href="{{ path('app_profile_show', { username: authorName }) }}" class="review-card__name">{{ authorName }}</a>
                 {% if review.createdAt %}
-                    <div class="user_info_publish_date">Publié le {{ review.createdAt|date('d/m/Y') }}</div>
+                    <span class="review-card__date">Publié le {{ review.createdAt|date('d/m/Y') }}</span>
                 {% endif %}
             </div>
-        </div>
-    {% endif %}
+        {% endif %}
+        <span class="review-card__no">N°{{ '%03d'|format(review.id) }}</span>
+    </div>
 
     {# Bloc Album & Note #}
     {% if review.album %}
-        <div class="review_card_album">
-            <img src="{{ review.album.coverImage|default('https://via.placeholder.com/130') }}" alt="Cover de {{ review.album.title }}" class="review_card_cover">
-            
-            <div class="review_card_details">
-                <h3 class="review_card_title">{{ review.album.title }}</h3>
-                <div class="review_card_artist">{{ review.album.artist }}</div>
-                
-                <div class="review_card_rating">
-                    {{ review.rating }}/10
-                </div>
-
-                {# Affichage dynamique des étoiles #}
-                <div class="review_card_stars">
-                    {% set ratingOutOf5 = review.rating / 2 %}
-                    {% for i in 1..5 %}
-                        {% if ratingOutOf5 >= i %}
-                            ★
-                        {% elseif ratingOutOf5 >= (i - 0.5) %}
-                            <span class="review_card_star_half">★</span>
-                        {% else %}
-                            <span class="review_card_star_empty">★</span>
-                        {% endif %}
-                    {% endfor %}
-                </div>
+        <div class="review-card__album">
+            <img src="{{ review.album.coverImage|default('https://via.placeholder.com/300') }}" alt="Pochette de {{ review.album.title }}" class="cover" loading="lazy">
+            <div class="review-card__details">
+                <h2 class="review-card__title">{{ review.album.title }}</h2>
+                <p class="review-card__artist">{{ review.album.artist }}</p>
+                <p class="rating-num"><strong>{{ review.rating }}</strong><span>/10</span></p>
+                {% include 'review/_stars.html.twig' with { rating: review.rating } only %}
             </div>
         </div>
     {% endif %}
 
-    {# Contenu de la review #}
-    <div class="review_card_content">
-        {{ review.content }}
-    </div>
+    {# Contenu de la review (tronqué, « Lire la suite » affiché par le JS si nécessaire) #}
+    <p class="review-card__text is-clamped" id="review-text-{{ review.id }}">{{ review.content }}</p>
+    <button type="button" class="review-card__more" aria-expanded="false" aria-controls="review-text-{{ review.id }}" hidden>Lire la suite ↓</button>
 
-    {# Footer & Actions #}
-    <div class="review_card_footer">
-        {# Bouton de Like #}
-        {% set isLiked = app.user and review.isLikedByUser(app.user) %}
-        <button
-            type="button"
-            class="like-btn {{ isLiked ? 'is-liked' : '' }}"
-            data-url="{{ path('app_review_like', { id: review.id }) }}"
-        >
-                
-            <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="{{ isLiked ? 'currentColor' : 'none' }}"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="heart-icon"
-            >
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-            </svg>
-                
-            <span class="like-count">{{ review.likes|length }}</span>
-        </button>
-        
-        {# Actions de l'auteur, Historique & Like #}
-        <div class="review_card_actions">
-            {% if app.user and review.user == app.user %}
-                <button type="button" class="btn-choose-album" data-spotify-id="{{ review.album ? review.album.spotifyId : '' }}">
-                    + Nouvelle révision
-                </button>
+    {# Calcul sécurisé de l'historique (compatible Entités & Tableaux de recherche) #}
+    {% set userReviewsCount = 0 %}
+    {% if review.album is defined and review.album %}
+        {% set albumReviews = null %}
+        {% if review.album is iterable and 'reviews' in review.album|keys %}
+            {# Cas 1 : album est un tableau PHP avec une clé 'reviews' #}
+            {% set albumReviews = review.album['reviews'] %}
+        {% elseif review.album.reviews is defined %}
+            {# Cas 2 : album est une entité Doctrine avec la propriété 'reviews' #}
+            {% set albumReviews = review.album.reviews %}
+        {% endif %}
 
-                <button type="button" class="btn-edit-review" data-id="{{ review.id }}">
-                    Modifier
-                </button>
+        {% if albumReviews is not empty and review.user is defined and review.user %}
+            {% set userReviewsCount = albumReviews|filter(r => r.user is defined and r.user and r.user.id == review.user.id)|length %}
+        {% endif %}
+    {% endif %}
 
-                <form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" onsubmit="return confirm('Supprimer cette critique ?');" class="review_card_delete_form">
-                    <input type="hidden" name="_token" value="{{ csrf_token('delete_review_' ~ review.id) }}">
-                    <button type="submit" class="btn-delete-review">
-                        Supprimer
-                    </button>
-                </form>
-            {% endif %}
-
-            {# Calcul sécurisé de l'historique (compatible Entités & Tableaux de recherche) #}
-            {% set userReviewsCount = 0 %}
-
-            {% if review.album is defined and review.album %}
-                {# Récupération sécurisée du tableau/collection de reviews #}
-                {% set albumReviews = null %}
-    
-                {% if review.album is iterable and 'reviews' in review.album|keys %}
-                    {# Cas 1 : album est un tableau PHP avec une clé 'reviews' #}
-                    {% set albumReviews = review.album['reviews'] %}
-                {% elseif review.album.reviews is defined %}
-                    {# Cas 2 : album est une entité Doctrine avec la propriété 'reviews' #}
-                    {% set albumReviews = review.album.reviews %}
-                {% endif %}
-
-                {# Filtrage des révisions de l'utilisateur #}
-                {% if albumReviews is not empty and review.user is defined and review.user %}
-                    {% set userReviewsCount = albumReviews|filter(r => r.user is defined and r.user and r.user.id == review.user.id)|length %}
-                {% endif %}
-            {% endif %}
+    {# Footer : actions publiques puis actions de l'auteur #}
+    <footer class="review-card__footer">
+        <div class="review-card__bar">
+            {% set isLiked = app.user and review.isLikedByUser(app.user) %}
+            <button type="button" class="like-btn {{ isLiked ? 'is-liked' }}" data-url="{{ path('app_review_like', { id: review.id }) }}" aria-label="J'aime">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ isLiked ? 'currentColor' : 'none' }}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="heart-icon" aria-hidden="true">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                </svg>
+                <span class="like-count">{{ review.likes|length }}</span>
+            </button>
 
             {% if userReviewsCount > 1 %}
-                <button type="button" class="btn-history-review" data-id="{{ review.id }}">
-                    📜 Historique ({{ userReviewsCount }})
+                <button type="button" class="history-link btn-history-review" data-id="{{ review.id }}">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8M3 3v5h5M12 7v5l3 2"/></svg>
+                    Historique · {{ userReviewsCount }}
                 </button>
+            {% endif %}
+
+            {% if review.album and review.album.spotifyId %}
+                <a href="https://open.spotify.com/album/{{ review.album.spotifyId }}" target="_blank" rel="noopener noreferrer" class="btn btn--accent btn-listen">▶ Écouter</a>
             {% endif %}
         </div>
 
-        {# Bouton d'écoute universel #}
-        {% if review.album and review.album.spotifyId %}
-            <a href="https://open.spotify.com/album/{{ review.album.spotifyId }}" target="_blank" rel="noopener noreferrer" class="review_card_btn_listen">
-                <span class="review_card_btn_listen_icon">▶</span> Écouter
-            </a>
+        {% if app.user and review.user == app.user %}
+            <div class="owner-actions">
+                <button type="button" class="owner-action btn-choose-album" data-spotify-id="{{ review.album ? review.album.spotifyId : '' }}">+ Révision</button>
+                <button type="button" class="owner-action btn-edit-review" data-id="{{ review.id }}">Modifier</button>
+                <form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" onsubmit="return confirm('Supprimer cette critique ?');">
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete_review_' ~ review.id) }}">
+                    <button type="submit" class="owner-action owner-action--danger">Supprimer</button>
+                </form>
+            </div>
         {% endif %}
-    </div>
-</div>
+    </footer>
+</article>

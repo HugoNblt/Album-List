@@ -1,23 +1,24 @@
 <div class="history-header">
-    <img src="{{ album.coverImage }}" alt="Cover" class="history-cover">
+    <img src="{{ album.coverImage }}" alt="Pochette de {{ album.title }}" class="cover">
     <div>
         <h4 class="modal-album-title">{{ album.title }}</h4>
-        <p class="modal-album-artist">par {{ album.artist }}</p>
-        <small class="history-meta">Historique de <strong>{{ reviewUser.userIdentifier }}</strong> ({{ reviews|length }} révision{% if reviews|length > 1 %}s{% endif %})</small>
+        <p class="modal-album-artist">{{ album.artist }}</p>
+        <small class="eyebrow history-meta">Historique de {{ reviewUser.userIdentifier }} · {{ reviews|length }} révision{{ reviews|length > 1 ? 's' }}</small>
     </div>
 </div>
 
 <div class="history-list">
     {% for r in reviews %}
-        <div class="history-item {{ loop.first ? 'is-latest' : '' }}">
+        <div class="history-item {{ loop.first ? 'is-latest' }}">
             <div class="history-item-header">
                 <span class="history-item-rating">
-                    Note : {{ r.rating }}/10
+                    <strong>{{ r.rating }}/10</strong>
+                    {% include 'review/_stars.html.twig' with { rating: r.rating } only %}
                     {% if loop.first %}
                         <small class="history-badge">Dernière révision</small>
                     {% endif %}
                 </span>
-                <small class="history-item-date">Publié le {{ r.createdAt | date('d/m/Y à H:i') }}</small>
+                <small class="history-item-date">Publié le {{ r.createdAt|date('d/m/Y à H:i') }}</small>
             </div>
             <p class="history-item-content">{{ r.content }}</p>
         </div>

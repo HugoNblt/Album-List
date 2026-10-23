@@ -1,21 +1,7 @@
-<div class="modal-review-layout">
-    <div class="modal-album">
-        {% if review.album %}
-            <img src="{{ review.album.coverImage }}" alt="Cover" class="modal-album-cover">
-            <div>
-                <h4 class="modal-album-title">{{ review.album.title }}</h4>
-                <p class="modal-album-artist">{{ review.album.artist }}</p>
-            </div>
-        {% endif %}
-    </div>
-    <div class="modal-form">
-        {{ form_start(form, { 'attr': { 'id': 'modal-edit-form' } }) }}
-            {{ form_row(form.rating) }}
-            {{ form_row(form.content) }}
-            <div class="modal-actions">
-                <button type="submit" class="btn-modal-primary">Enregistrer</button>
-                <button type="button" class="btn-modal-secondary" onclick="document.getElementById('review-modal').close()">Annuler</button>
-            </div>
-        {{ form_end(form) }}
-    </div>
-</div>
+{% include 'post/_review_form.html.twig' with {
+    form: form,
+    album: review.album,
+    formId: 'modal-edit-form',
+    submitLabel: 'Enregistrer',
+    secondary: 'cancel'
+} only %}

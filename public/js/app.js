@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnOpenReview && reviewModal) {
         btnOpenReview.addEventListener('click', () => {
-            if (modalTitle) modalTitle.innerText = 'Créer une review';
+            if (modalTitle) modalTitle.innerText = 'Nouvelle critique';
             openModal(reviewModal);
             loadModalContent('/modal/search-form');
         });
@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- 3.1. Modifier une review ---
         const btnEdit = e.target.closest('.btn-edit-review');
         if (btnEdit && reviewModal) {
-            if (modalTitle) modalTitle.innerText = 'Modifier la review';
+            if (modalTitle) modalTitle.innerText = 'Modifier la critique';
             openModal(reviewModal);
             loadModalContent(`/modal/edit/${btnEdit.getAttribute('data-id')}`);
             return;
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- 3.2. Choisir un album / Écrire une review ---
         const btnChoose = e.target.closest('.btn-choose-album');
         if (btnChoose && reviewModal) {
-            if (modalTitle) modalTitle.innerText = 'Écrire une review';
+            if (modalTitle) modalTitle.innerText = 'Nouvelle critique';
             openModal(reviewModal);
             loadModalContent(`/modal/write/${btnChoose.getAttribute('data-spotify-id')}`);
             return;
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- 3.3. Bouton Retour dans la recherche ---
         if (e.target.id === 'btn-back-search') {
-            if (modalTitle) modalTitle.innerText = 'Créer une review';
+            if (modalTitle) modalTitle.innerText = 'Nouvelle critique';
             loadModalContent('/modal/search-form');
             return;
         }
@@ -74,7 +74,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- 3.5. Gestion des Likes ---
+        // --- 3.5. Sélecteur d'étoiles (formulaires d'écriture / édition) ---
+        const starBtn = e.target.closest('.star-picker__half');
+        if (starBtn) {
+            setStarRating(starBtn.closest('.star-field'), Number(starBtn.dataset.value));
+            return;
+        }
+
+        // --- 3.6. « Lire la suite » sur les cartes ---
+        const btnMore = e.target.closest('.review-card__more');
+        if (btnMore) {
+            const text = document.getElementById(btnMore.getAttribute('aria-controls'));
+            const expanded = btnMore.getAttribute('aria-expanded') === 'true';
+            if (text) text.classList.toggle('is-clamped', expanded);
+            btnMore.setAttribute('aria-expanded', String(!expanded));
+            btnMore.textContent = expanded ? 'Lire la suite ↓' : 'Réduire ↑';
+            return;
+        }
+
+        // --- 3.7. Gestion des Likes ---
         const btnLike = e.target.closest('.like-btn');
         if (btnLike) {
             e.preventDefault();
@@ -123,6 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (e.target.id === 'modal-write-form' || e.target.id === 'modal-edit-form') {
             e.preventDefault();
+            const ratingInput = e.target.querySelector('.rating-input');
+            if (ratingInput && !ratingInput.value) {
+                const errors = e.target.querySelector('.star-field .form-errors');
+                if (errors) errors.textContent = 'Choisis une note.';
+                return;
+            }
             handleAjaxFormPost(e.target);
         }
     });
@@ -146,8 +170,54 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
+    // 6. « LIRE LA SUITE » : bouton affiché seulement si le texte déborde
+    // ==========================================
+    function initReadMore() {
+        document.querySelectorAll('.review-card__more').forEach((btn) => {
+            if (btn.getAttribute('aria-expanded') === 'true') return;
+            const text = document.getElementById(btn.getAttribute('aria-controls'));
+            btn.hidden = !text || text.scrollHeight <= text.clientHeight + 1;
+        });
+    }
+
+    initReadMore();
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(initReadMore, 150);
+    });
+    if (document.fonts) document.fonts.ready.then(initReadMore);
+
+    // ==========================================
     // FONCTIONS UTILITAIRES INTERNES
     // ==========================================
+    const VERDICTS = ['', 'À fuir', 'À fuir', 'Bof', 'Bof', 'Correct', 'Correct', 'Solide', 'Solide', 'Indispensable', "Chef-d'œuvre"];
+
+    function setStarRating(field, value) {
+        if (!field) return;
+        const input = field.querySelector('.rating-input');
+        if (input && value) input.value = value;
+
+        field.querySelectorAll('.star-picker .star').forEach((star, i) => {
+            star.classList.toggle('is-full', value >= (i + 1) * 2);
+            star.classList.toggle('is-half', value === i * 2 + 1);
+        });
+
+        const display = field.querySelector('.rating-display__value');
+        const verdict = field.querySelector('.rating-display__verdict');
+        if (display) display.textContent = value || '–';
+        if (verdict) verdict.textContent = VERDICTS[value] || '';
+
+        const errors = field.querySelector('.form-errors');
+        if (errors && value) errors.textContent = '';
+    }
+
+    function initStarFields(root) {
+        root.querySelectorAll('.star-field').forEach((field) => {
+            const input = field.querySelector('.rating-input');
+            setStarRating(field, input ? Number(input.value) || 0 : 0);
+        });
+    }
     function openModal(dialogEl) {
         if (!dialogEl) return;
         if (typeof dialogEl.showModal === 'function') {
@@ -175,7 +245,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return response.text();
             })
             .then(html => {
-                if (modalBody) modalBody.innerHTML = html;
+                if (modalBody) {
+                    modalBody.innerHTML = html;
+                    initStarFields(modalBody);
+                }
             })
             .catch(err => {
                 if (modalBody) modalBody.innerHTML = `<p class="form-alert">Erreur : ${err.message}</p>`;
@@ -190,8 +263,16 @@ document.addEventListener('DOMContentLoaded', () => {
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(res => res.json())
-        .then(data => {
+        .then(async (res) => {
+            // Formulaire invalide : le serveur renvoie le HTML du formulaire avec ses erreurs
+            if (!(res.headers.get('Content-Type') || '').includes('application/json')) {
+                if (modalBody) {
+                    modalBody.innerHTML = await res.text();
+                    initStarFields(modalBody);
+                }
+                return;
+            }
+            const data = await res.json();
             if (data.status === 'success') {
                 if (reviewModal) closeModal(reviewModal);
                 window.location.href = data.redirect;

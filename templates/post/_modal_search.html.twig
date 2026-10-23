@@ -1,4 +1,9 @@
-<form id="modal-search-form" method="get" class="modal-search-form">
-    <input type="search" name="q" placeholder="Rechercher un album (ex: Daft Punk)..." required class="search-input">
-    <button type="submit" class="search-btn">Chercher</button>
+<form id="modal-search-form" method="get" class="search-block modal-search-form" role="search">
+    <div class="search-block__field">
+        <label for="modal-q" class="eyebrow">Chercher un album sur Spotify</label>
+        <input type="search" id="modal-q" name="q" placeholder="ex. Daft Punk" required class="search-block__input">
+    </div>
+    <div class="search-block__actions">
+        <button type="submit" class="btn btn--accent">Chercher →</button>
+    </div>
 </form>

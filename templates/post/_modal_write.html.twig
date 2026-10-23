@@ -1,19 +1,7 @@
-<div class="modal-review-layout">
-    <div class="modal-album">
-        <img src="{{ album.coverImage }}" alt="Cover" class="modal-album-cover">
-        <div>
-            <h4 class="modal-album-title">{{ album.title }}</h4>
-            <p class="modal-album-artist">{{ album.artist }}</p>
-        </div>
-    </div>
-    <div class="modal-form">
-        {{ form_start(form, { 'attr': { 'id': 'modal-write-form' } }) }}
-            {{ form_row(form.rating) }}
-            {{ form_row(form.content) }}
-            <div class="modal-actions">
-                <button type="submit" class="btn-modal-primary">Publier</button>
-                <button type="button" id="btn-back-search" class="btn-modal-secondary">Retour</button>
-            </div>
-        {{ form_end(form) }}
-    </div>
-</div>
+{% include 'post/_review_form.html.twig' with {
+    form: form,
+    album: album,
+    formId: 'modal-write-form',
+    submitLabel: 'Publier',
+    secondary: 'back'
+} only %}

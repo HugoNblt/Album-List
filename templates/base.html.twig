@@ -7,97 +7,102 @@
             {% block title %}Album List
             {% endblock %}
         </title>
-        {# <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">  #}
-        {# <link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css"
-> #}
         {% block stylesheets %}
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
             <link href="{{ asset('css/styles.css') }}" type="text/css" rel="stylesheet">
         {% endblock %}
-        
     </head>
     <body>
         {% block header %}
-            <header class="app-header">
-    <div class="header-container">
-        <nav class="top-nav">
-            <ul class="top-nav-list">
-                <li><a href="{{ path('app_home') }}" class="top-nav-link">Accueil</a></li>
-                {% if app.user %}
-                    <li><a href="{{ path('app_profile') }}" class="top-nav-link">Profil</a></li>
-                    
-                    {# Bouton qui déclenche la pop-up / modale #}
-                    <li>
-                        <button type="button" class="top-nav-link nav-btn-modal" id="open-new-review-modal">
-                            + Nouvelle Review
-                        </button>
-                    </li>
-                    
-                    <li><span class="top-nav-user">{{ app.user.username }}</span></li>
-                    <li><a href="{{ path('app_logout') }}" class="top-nav-link">Déconnexion</a></li>
-                {% else %}
-                    <li><a href="{{ path('app_login') }}" class="top-nav-link">Connexion</a></li>
-                    <li><a href="{{ path('app_register') }}" class="top-nav-link">Inscription</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </div>
-</header>
+            {% set route = app.request.attributes.get('_route') %}
+            {% set onOwnProfile = app.user and route == 'app_profile_show' and app.request.attributes.get('username') == app.user.username %}
+            <header class="site-header">
+                <div class="container site-header__inner">
+                    <a href="{{ path('app_home') }}" class="logo">Album<span>/</span>List</a>
+
+                    <nav class="site-nav" aria-label="Navigation principale">
+                        <ul>
+                            <li><a href="{{ path('app_home') }}" class="{{ route == 'app_home' ? 'is-active' }}">Le fil</a></li>
+                            {% if app.user %}
+                                <li><a href="{{ path('app_profile') }}" class="{{ onOwnProfile or route == 'app_profile_edit' ? 'is-active' }}">Mon profil</a></li>
+                                <li class="site-nav__user">{{ app.user.username }}</li>
+                                <li class="site-nav__push"><a href="{{ path('app_logout') }}">Déconnexion</a></li>
+                            {% else %}
+                                <li><a href="{{ path('app_login') }}" class="{{ route == 'app_login' ? 'is-active' }}">Connexion</a></li>
+                                <li><a href="{{ path('app_register') }}" class="{{ route == 'app_register' ? 'is-active' }}">Inscription</a></li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+
+                    {% if app.user %}
+                        {# Bouton qui déclenche la modale de création #}
+                        <button type="button" class="btn btn--light site-header__cta" id="open-new-review-modal">+ Critique</button>
+                    {% endif %}
+                </div>
+            </header>
         {% endblock %}
 
         <main>
             {% for message in app.flashes('success') %}
-                <div class="flash-message">{{ message }}</div>
+                <div class="container">
+                    <div class="flash-message" role="status">{{ message }}</div>
+                </div>
             {% endfor %}
             {% block body %}{% endblock %}
         </main>
 
         <!-- Modale unique native HTML5 -->
-        <dialog id="review-modal" class="app-modal app-modal--wide">
+        <dialog id="review-modal" class="app-modal app-modal--wide" aria-labelledby="modal-title">
             <div class="modal-header">
-                <h3 id="modal-title">Créer une review</h3>
-                <button type="button" class="modal-close-btn" onclick="document.getElementById('review-modal').close()" aria-label="Fermer">&times;</button>
+                <h3 id="modal-title">Nouvelle critique</h3>
+                <button type="button" class="modal-close-btn" onclick="document.getElementById('review-modal').close()" aria-label="Fermer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
             </div>
             <div id="modal-body"></div>
         </dialog>
 
-        {# Bouton fixe en bas à gauche #}
-<button type="button" id="btn-about-trigger" class="floating-help-btn" aria-label="À propos">
-    ?
-</button>
+        {# Pop-up À propos & Changelog #}
+        <dialog id="about-modal" class="app-modal" aria-labelledby="about-title">
+            <div class="modal-header">
+                <h2 id="about-title">À propos du projet</h2>
+                <button type="button" id="btn-close-about" class="modal-close-btn" aria-label="Fermer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <section class="about-section">
+                    <h3>Note d'intention</h3>
+                    <p>
+                        Cette application a été conçue comme un espace épuré de critique et de partage musical.
+                        L'idée est de privilégier une expérience mobile-first réactive, permettant d'évaluer des albums,
+                        de suivre l'évolution de ses avis grâce à un système de révisions, et de découvrir les retours de la communauté.
+                    </p>
+                </section>
 
-{# Pop-up À propos & Changelog #}
-<dialog id="about-modal" class="app-modal">
-    <div class="modal-header">
-        <h2>À propos du projet</h2>
-        <button type="button" id="btn-close-about" class="modal-close-btn" aria-label="Fermer">&times;</button>
-    </div>
-    <div class="modal-body">
-        <section class="about-section">
-            <h3>🎯 Note d'intention</h3>
-            <p>
-                Cette application a été conçue comme un espace épuré de critique et de partage musical. 
-                L'idée est de privilégier une expérience mobile-first réactive, permettant d'évaluer des albums, 
-                de suivre l'évolution de ses avis grâce à un système de révisions, et de découvrir les retours de la communauté.
-            </p>
-        </section>
+                <hr class="modal-divider">
 
-        <hr class="modal-divider">
-
-        <section class="about-section">
-            <h3>📜 Changelog</h3>
-            <ul class="changelog-list">
-                <li><strong>v1.2 :</strong> Intégration du système de likes asynchrones et layout responsive Desktop.</li>
-                <li><strong>v1.1 :</strong> Ajout des modales AJAX (recherche Spotify, édition, révisions).</li>
-                <li><strong>v1.0 :</strong> Version initiale mobile (système de notation, cartes de critiques, profils).</li>
-            </ul>
-        </section>
-    </div>
-</dialog>
+                <section class="about-section">
+                    <h3>Changelog</h3>
+                    <ul class="changelog-list">
+                        <li><strong>v1.3 :</strong> Nouvelle direction artistique « bac à disques », profils personnalisables et notation par étoiles.</li>
+                        <li><strong>v1.2 :</strong> Intégration du système de likes asynchrones et layout responsive Desktop.</li>
+                        <li><strong>v1.1 :</strong> Ajout des modales AJAX (recherche Spotify, édition, révisions).</li>
+                        <li><strong>v1.0 :</strong> Version initiale mobile (système de notation, cartes de critiques, profils).</li>
+                    </ul>
+                </section>
+            </div>
+        </dialog>
 
         {% block footer %}
-            <footer class="app-footer">@Designed By Hugo NOBLOT</footer>
+            <footer class="site-footer">
+                <div class="container site-footer__inner">
+                    <button type="button" id="btn-about-trigger" class="site-footer__link">À propos &amp; changelog</button>
+                    <span>Album/List — conçu par Hugo Noblot</span>
+                </div>
+            </footer>
         {% endblock %}
 
         {% block javascripts %}

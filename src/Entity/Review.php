@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 class Review
@@ -17,9 +18,12 @@ class Review
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Écris quelques mots sur cet album.')]
     private ?string $content = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Choisis une note.')]
+    #[Assert\Range(min: 1, max: 10, notInRangeMessage: 'La note doit être comprise entre {{ min }} et {{ max }}.')]
     private ?int $rating = null;
 
     #[ORM\Column]
@@ -65,7 +69,7 @@ private ?Album $album = null;
         return $this->content;
     }
 
-    public function setContent(string $content): static
+    public function setContent(?string $content): static
     {
         $this->content = $content;
 
@@ -77,7 +81,7 @@ private ?Album $album = null;
         return $this->rating;
     }
 
-    public function setRating(int $rating): static
+    public function setRating(?int $rating): static
     {
         $this->rating = $rating;
 
