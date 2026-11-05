@@ -104,7 +104,7 @@
                                 </button>
                             {% endif %}
                             {% if review.album.spotifyId %}
-                                <a href="https://open.spotify.com/album/{{ review.album.spotifyId }}" target="_blank" rel="noopener noreferrer" class="btn btn--accent btn-listen">▶ Écouter</a>
+                                <a href="https://open.spotify.com/album/{{ review.album.spotifyId }}" target="_blank" rel="noopener noreferrer" class="btn btn--accent btn-listen" data-listen data-spotify-id="{{ review.album.spotifyId }}" data-title="{{ review.album.title }}" data-artist="{{ review.album.artist }}" aria-haspopup="dialog">▶ Écouter</a>
                             {% endif %}
                             </div>
                             {% if isOwner %}

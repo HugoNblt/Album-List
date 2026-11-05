@@ -74,7 +74,19 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- 3.5. Sélecteur d'étoiles (formulaires d'écriture / édition) ---
+        // --- 3.5. « Écouter » : choix de la plateforme ---
+        const btnListen = e.target.closest('[data-listen]');
+        if (btnListen && listenModal) {
+            e.preventDefault();
+            openListenModal(btnListen.dataset);
+            return;
+        }
+        if (e.target.closest('.listen-link') && listenModal) {
+            closeModal(listenModal);
+            return;
+        }
+
+        // --- 3.5 bis. Sélecteur d'étoiles (formulaires d'écriture / édition) ---
         const starBtn = e.target.closest('.star-picker__half');
         if (starBtn) {
             setStarRating(starBtn.closest('.star-field'), Number(starBtn.dataset.value));
@@ -191,6 +203,39 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // FONCTIONS UTILITAIRES INTERNES
     // ==========================================
+    const listenModal = document.getElementById('listen-modal');
+
+    // Spotify : lien direct vers l'album ; autres plateformes : recherche « artiste titre »
+    const LISTEN_URLS = {
+        spotify: (d) => `https://open.spotify.com/album/${encodeURIComponent(d.spotifyId)}`,
+        apple: (d, q) => `https://music.apple.com/fr/search?term=${q}`,
+        deezer: (d, q) => `https://www.deezer.com/fr/search/${q}`,
+        youtube: (d, q) => `https://music.youtube.com/search?q=${q}`,
+        tidal: (d, q) => `https://listen.tidal.com/search?q=${q}`,
+        amazon: (d, q) => `https://music.amazon.fr/search/${q}`,
+        soundcloud: (d, q) => `https://soundcloud.com/search?q=${q}`,
+    };
+
+    function openListenModal(data) {
+        const q = encodeURIComponent(`${data.artist} ${data.title}`);
+        listenModal.querySelector('.listen-album__title').textContent = data.title;
+        listenModal.querySelector('.listen-album__artist').textContent = data.artist;
+        listenModal.querySelectorAll('.listen-link').forEach((link) => {
+            const build = LISTEN_URLS[link.dataset.platform];
+            if (build) link.href = build(data, q);
+        });
+        openModal(listenModal);
+        focusFirst(listenModal.querySelector('.listen-list'));
+    }
+
+    // Place le focus sur le premier champ (ou à défaut le premier élément interactif) d'un conteneur
+    function focusFirst(container) {
+        if (!container) return;
+        const target = container.querySelector('.star-picker__half[tabindex="0"], input:not([type="hidden"]), textarea, select')
+            || container.querySelector('a[href], button:not([disabled]), [tabindex="0"]');
+        if (target) target.focus();
+    }
+
     const VERDICTS = ['', 'À fuir', 'À fuir', 'Bof', 'Bof', 'Correct', 'Correct', 'Solide', 'Solide', 'Indispensable', "Chef-d'œuvre"];
 
     function setStarRating(field, value) {

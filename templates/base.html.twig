@@ -64,6 +64,40 @@
             <div id="modal-body"></div>
         </dialog>
 
+        {# Choix de la plateforme d'écoute (liens complétés par le JS) #}
+        <dialog id="listen-modal" class="app-modal" aria-labelledby="listen-title">
+            <div class="modal-header">
+                <h2 id="listen-title">Écouter sur…</h2>
+                <button type="button" class="modal-close-btn" data-close-dialog="listen-modal" aria-label="Fermer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="listen-album">
+                    <strong class="listen-album__title"></strong>
+                    <span class="listen-album__artist"></span>
+                </p>
+                <ul class="listen-list">
+                    {% for platform in [
+                        { key: 'spotify', name: 'Spotify' },
+                        { key: 'apple', name: 'Apple Music' },
+                        { key: 'deezer', name: 'Deezer' },
+                        { key: 'youtube', name: 'YouTube Music' },
+                        { key: 'tidal', name: 'Tidal' },
+                        { key: 'amazon', name: 'Amazon Music' },
+                        { key: 'soundcloud', name: 'SoundCloud' }
+                    ] %}
+                        <li>
+                            <a href="#" class="listen-link" data-platform="{{ platform.key }}" target="_blank" rel="noopener noreferrer">
+                                {{ platform.name }}<span aria-hidden="true">↗</span>
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ul>
+                <p class="listen-note eyebrow">Hors Spotify, le lien ouvre une recherche de l'album sur la plateforme.</p>
+            </div>
+        </dialog>
+
         {# Pop-up À propos & Changelog #}
         <dialog id="about-modal" class="app-modal" aria-labelledby="about-title">
             <div class="modal-header">

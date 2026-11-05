@@ -1391,6 +1391,68 @@ h1, h2, h3, h4, p, ul, ol, dl, dd {
     border-top: 1px solid var(--line);
 }
 
+/* Choix de la plateforme d'écoute */
+.listen-album {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 16px;
+}
+
+.listen-album__title {
+    font-size: 1.5rem;
+    font-stretch: 75%;
+    font-weight: 800;
+    line-height: 1.05;
+}
+
+.listen-album__artist {
+    margin-top: 2px;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.listen-list {
+    padding: 0;
+    border-top: 1px solid var(--line);
+    list-style: none;
+}
+
+.listen-link {
+    display: flex;
+    min-height: 52px;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 4px;
+    border-bottom: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.listen-link:hover {
+    background: var(--surface);
+    color: var(--accent);
+}
+
+.listen-link span {
+    color: var(--muted);
+}
+
+.listen-link:hover span {
+    color: var(--accent);
+}
+
+.listen-note {
+    margin-top: 16px;
+    text-transform: none;
+    letter-spacing: 0.5px;
+}
+
 /* Recherche Spotify */
 .modal-search-form {
     margin-bottom: 20px;
