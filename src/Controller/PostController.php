@@ -47,7 +47,11 @@ class PostController extends AbstractController
 
         $album = $albumRepository->findOneBy(['spotifyId' => $spotifyId]);
         if (!$album) {
-            $spotifyData = $spotifyService->getAlbum($spotifyId);
+            try {
+                $spotifyData = $spotifyService->getAlbum($spotifyId);
+            } catch (HttpClientExceptionInterface) {
+                return new Response('<p class="form-alert">Spotify est momentanément indisponible, réessaie dans quelques instants.</p>', 503);
+            }
             if (!$spotifyData) {
                 return new Response('Album introuvable sur Spotify', 404);
             }
@@ -57,7 +61,7 @@ class PostController extends AbstractController
             $album->setTitle($spotifyData['name']);
             $album->setArtist($spotifyData['artists'][0]['name']);
             $album->setReleaseYear((int) substr($spotifyData['release_date'], 0, 4));
-            $album->setCoverImage($spotifyData['images'][1]['url'] ?? 'https://via.placeholder.com/300');
+            $album->setCoverImage($spotifyData['images'][1]['url'] ?? $spotifyData['images'][0]['url'] ?? null);
             
             $em->persist($album);
         }

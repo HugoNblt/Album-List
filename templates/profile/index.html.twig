@@ -78,7 +78,7 @@
                     {% set revisionCount = review.album.reviews|filter(r => r.user and r.user.id == user.id)|length %}
                     <li class="disc-row">
                         <span class="disc-row__no">N°{{ '%03d'|format(rows|length - loop.index0) }}</span>
-                        <img src="{{ review.album.coverImage|default('https://via.placeholder.com/300') }}" alt="Pochette de {{ review.album.title }}" class="cover" loading="lazy">
+                        <img src="{{ review.album.coverImage|default(asset('images/cover-placeholder.svg')) }}" alt="Pochette de {{ review.album.title }}" class="cover" loading="lazy">
                         <div class="disc-row__info">
                             <h2 class="disc-row__title">{{ review.album.title }}</h2>
                             <p class="disc-row__artist">{{ review.album.artist }}</p>

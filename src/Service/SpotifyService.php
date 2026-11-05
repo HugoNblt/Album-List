@@ -2,22 +2,40 @@
 
 namespace App\Service;
 
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 
+/**
+ * Les erreurs réseau / API remontent en Symfony\Contracts\HttpClient\Exception\ExceptionInterface :
+ * les contrôleurs les interceptent pour afficher un message plutôt qu'une erreur 500.
+ */
 class SpotifyService
 {
     public function __construct(
         private HttpClientInterface $client,
+        private CacheInterface $cache,
         #[Autowire(env: 'SPOTIFY_CLIENT_ID')] private string $clientId,
         #[Autowire(env: 'SPOTIFY_CLIENT_SECRET')] private string $clientSecret,
     ) {
     }
 
     /**
-     * Récupère un token d'authentification temporaire auprès de Spotify
+     * Récupère un token d'authentification temporaire auprès de Spotify (mis en cache jusqu'à son expiration)
      */
     private function getAccessToken(): string
+    {
+        return $this->cache->get('spotify_access_token', function (ItemInterface $item): string {
+            $data = $this->requestAccessToken();
+            $item->expiresAfter(max(60, ($data['expires_in'] ?? 3600) - 60));
+
+            return $data['access_token'];
+        });
+    }
+
+    /** @return array{access_token: string, expires_in?: int} */
+    private function requestAccessToken(): array
     {
         $response = $this->client->request('POST', 'https://accounts.spotify.com/api/token', [
             'headers' => [
@@ -30,7 +48,7 @@ class SpotifyService
             ],
         ]);
 
-        return $response->toArray()['access_token'];
+        return $response->toArray();
     }
 
     /**

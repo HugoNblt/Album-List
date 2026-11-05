@@ -285,8 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modalBody) modalBody.innerHTML = '<p class="loading-text">Chargement...</p>';
 
         fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error('Erreur HTTP ' + response.status);
+            .then(async (response) => {
+                // 503 : le serveur renvoie un message prêt à afficher (Spotify indisponible)
+                if (!response.ok && response.status !== 503) throw new Error('Erreur HTTP ' + response.status);
                 return response.text();
             })
             .then(html => {

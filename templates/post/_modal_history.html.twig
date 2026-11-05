@@ -1,5 +1,5 @@
 <div class="history-header">
-    <img src="{{ album.coverImage }}" alt="Pochette de {{ album.title }}" class="cover">
+    <img src="{{ album.coverImage ?: asset('images/cover-placeholder.svg') }}" alt="Pochette de {{ album.title }}" class="cover">
     <div>
         <h4 class="modal-album-title">{{ album.title }}</h4>
         <p class="modal-album-artist">{{ album.artist }}</p>

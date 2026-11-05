@@ -11,7 +11,7 @@
 <div class="modal-results">
     {% for album in albums %}
         <div class="modal-result">
-            <img src="{{ album.images[2].url | default('https://via.placeholder.com/50') }}" alt="" class="cover">
+            <img src="{{ album.images[2].url ?? album.images[0].url ?? asset('images/cover-placeholder.svg') }}" alt="" class="cover">
             <div class="modal-result-info">
                 <strong>{{ album.name }}</strong>
                 <small>{{ album.artists[0].name }}</small>

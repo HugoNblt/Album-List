@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" role="img" aria-label="Pochette indisponible">
+  <rect width="300" height="300" fill="#2a2d3b"/>
+  <circle cx="150" cy="150" r="96" fill="none" stroke="#10121a" stroke-width="2"/>
+  <circle cx="150" cy="150" r="72" fill="none" stroke="#10121a" stroke-width="2"/>
+  <circle cx="150" cy="150" r="48" fill="none" stroke="#10121a" stroke-width="2"/>
+  <circle cx="150" cy="150" r="14" fill="#ebba38"/>
+</svg>

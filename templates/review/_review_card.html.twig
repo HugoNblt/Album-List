@@ -21,7 +21,7 @@
     {# Bloc Album & Note #}
     {% if review.album %}
         <div class="review-card__album">
-            <img src="{{ review.album.coverImage|default('https://via.placeholder.com/300') }}" alt="Pochette de {{ review.album.title }}" class="cover" loading="lazy">
+            <img src="{{ review.album.coverImage|default(asset('images/cover-placeholder.svg')) }}" alt="Pochette de {{ review.album.title }}" class="cover" loading="lazy">
             <div class="review-card__details">
                 <h2 class="review-card__title">{{ review.album.title }}</h2>
                 <p class="review-card__artist">{{ review.album.artist }}</p>

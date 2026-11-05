@@ -1,7 +1,7 @@
 {# Formulaire commun écriture / édition. Paramètres : form, album, formId, submitLabel, secondary ('back' | 'cancel') #}
 <div class="modal-album">
     {% if album %}
-        <img src="{{ album.coverImage }}" alt="Pochette de {{ album.title }}" class="cover">
+        <img src="{{ album.coverImage ?: asset('images/cover-placeholder.svg') }}" alt="Pochette de {{ album.title }}" class="cover">
         <div>
             {% if album.releaseYear %}
                 <p class="eyebrow">{{ album.releaseYear }} · Album</p>

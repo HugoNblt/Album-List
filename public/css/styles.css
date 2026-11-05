@@ -1904,3 +1904,70 @@ textarea.form-input {
     margin: 10px 0 0;
     cursor: pointer;
 }
+
+/* ==========================================================================
+   15. PAGES D'ERREUR
+   ========================================================================== */
+.error-page {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.error-page__text {
+    max-width: 480px;
+    color: var(--text-2);
+}
+
+/* ==========================================================================
+   16. CHARGEMENT (envoi des formulaires)
+   ========================================================================== */
+.spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .spinner {
+        animation-duration: 2s;
+    }
+}
+
+.btn:disabled {
+    cursor: progress;
+    opacity: 0.75;
+}
+
+/* Barre de progression indéterminée en haut de la modale pendant l'envoi */
+form[aria-busy="true"] {
+    position: relative;
+}
+
+form[aria-busy="true"]::before {
+    position: absolute;
+    top: -20px;
+    right: -16px;
+    left: -16px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    background-size: 50% 100%;
+    background-repeat: no-repeat;
+    animation: progress 1s linear infinite;
+    content: "";
+}
+
+@keyframes progress {
+    from { background-position: -50% 0; }
+    to { background-position: 150% 0; }
+}

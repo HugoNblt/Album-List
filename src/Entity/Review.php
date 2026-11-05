@@ -45,7 +45,7 @@ class Review
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'previousReview')]
     private Collection $revisions;
 
-    #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
