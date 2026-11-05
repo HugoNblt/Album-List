@@ -37,7 +37,7 @@
 
     <div class="modal-field">
         {{ form_label(form.content, 'Ta critique', { label_attr: { class: 'eyebrow' } }) }}
-        {{ form_widget(form.content, { attr: { placeholder: "Ce qui t'a marqué, ce qui t'a déçu…" } }) }}
+        {{ form_widget(form.content, { attr: { placeholder: "Ce qui t'a marqué, ce qui t'a déçu…", maxlength: 3000 } }) }}
         {{ form_errors(form.content) }}
     </div>
 
@@ -45,7 +45,7 @@
         {% if secondary == 'back' %}
             <button type="button" id="btn-back-search" class="btn">← Retour</button>
         {% else %}
-            <button type="button" class="btn" onclick="document.getElementById('review-modal').close()">Annuler</button>
+            <button type="button" class="btn" data-close-dialog="review-modal">Annuler</button>
         {% endif %}
         <button type="submit" class="btn btn--accent">{{ submitLabel }}</button>
     </div>

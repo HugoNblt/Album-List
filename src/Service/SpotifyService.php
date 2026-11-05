@@ -53,6 +53,8 @@ class SpotifyService
 
     /**
      * Cherche des albums sur Spotify via une chaîne de caractères
+     *
+     * @return list<array<string, mixed>>
      */
     public function searchAlbums(string $query): array
     {
@@ -74,11 +76,13 @@ class SpotifyService
     }
     /**
      * Récupère un album spécifique via son ID Spotify
+     *
+     * @return array<string, mixed>|null
      */
     public function getAlbum(string $id): ?array
     {
         $token = $this->getAccessToken();
-        $response = $this->client->request('GET', 'https://api.spotify.com/v1/albums/' . $id, [
+        $response = $this->client->request('GET', 'https://api.spotify.com/v1/albums/' . rawurlencode($id), [
             'headers' => [
                 'Authorization' => 'Bearer ' . $token,
             ],

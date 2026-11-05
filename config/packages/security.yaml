@@ -24,8 +24,13 @@ security:
                 login_path: app_login
                 check_path: app_login
                 enable_csrf: true
+            # Anti-bruteforce : 5 tentatives par minute (par identifiant + IP)
+            login_throttling:
+                max_attempts: 5
+                interval: '1 minute'
             logout:
                 path: app_logout
+                enable_csrf: true
                 # where to redirect after logout
                 # target: app_any_route
                 # where to redirect after logout

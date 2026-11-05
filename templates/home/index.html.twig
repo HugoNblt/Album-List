@@ -10,7 +10,7 @@
 		<form action="{{ path('app_home') }}" method="get" class="search-block search-block--hero" role="search">
 			<div class="search-block__field">
 				<label for="home-q" class="eyebrow">Fouiller le bac — album, artiste ou profil</label>
-				<input type="search" id="home-q" class="search-block__input" name="q" value="{{ q|default('') }}" placeholder="ex. Sleep Token">
+				<input type="search" id="home-q" class="search-block__input" maxlength="100" name="q" value="{{ q|default('') }}" placeholder="ex. Sleep Token">
 			</div>
 			<div class="search-block__actions">
 				<button type="submit" class="btn btn--accent">Chercher →</button>

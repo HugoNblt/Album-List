@@ -3,6 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% if app.user %}
+            <meta name="csrf-like" content="{{ csrf_token('review_like') }}">
+        {% endif %}
         <title>
             {% block title %}Album List
             {% endblock %}
@@ -28,7 +31,7 @@
                             {% if app.user %}
                                 <li><a href="{{ path('app_profile') }}" class="{{ onOwnProfile or route == 'app_profile_edit' ? 'is-active' }}">Mon profil</a></li>
                                 <li class="site-nav__user">{{ app.user.username }}</li>
-                                <li class="site-nav__push"><a href="{{ path('app_logout') }}">Déconnexion</a></li>
+                                <li class="site-nav__push"><a href="{{ logout_path() }}">Déconnexion</a></li>
                             {% else %}
                                 <li><a href="{{ path('app_login') }}" class="{{ route == 'app_login' ? 'is-active' }}">Connexion</a></li>
                                 <li><a href="{{ path('app_register') }}" class="{{ route == 'app_register' ? 'is-active' }}">Inscription</a></li>
@@ -57,7 +60,7 @@
         <dialog id="review-modal" class="app-modal app-modal--wide" aria-labelledby="modal-title">
             <div class="modal-header">
                 <h3 id="modal-title">Nouvelle critique</h3>
-                <button type="button" class="modal-close-btn" onclick="document.getElementById('review-modal').close()" aria-label="Fermer">
+                <button type="button" class="modal-close-btn" data-close-dialog="review-modal" aria-label="Fermer">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
                 </button>
             </div>

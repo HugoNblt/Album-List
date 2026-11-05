@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\ReviewRepository;
+use App\Util\TextSanitizer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
@@ -19,6 +20,7 @@ class Review
 
     #[ORM\Column(type: Types::TEXT)]
     #[Assert\NotBlank(message: 'Écris quelques mots sur cet album.')]
+    #[Assert\Length(max: 3000, maxMessage: 'Ta critique ne doit pas dépasser {{ limit }} caractères.')]
     private ?string $content = null;
 
     #[ORM\Column]
@@ -35,6 +37,9 @@ class Review
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'revisions')]
     private ?self $previousReview = null;
 
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'review_likes')]
     private Collection $likes;
@@ -71,7 +76,7 @@ private ?Album $album = null;
 
     public function setContent(?string $content): static
     {
-        $this->content = $content;
+        $this->content = TextSanitizer::multiline($content);
 
         return $this;
     }

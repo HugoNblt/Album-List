@@ -44,7 +44,7 @@
         <form method="GET" action="{{ path('app_profile_show', { username: user.username }) }}" class="search-block profile-search" role="search">
             <div class="search-block__field">
                 <label for="profile-q" class="eyebrow">Chercher dans les critiques de {{ user.username }}</label>
-                <input type="search" id="profile-q" name="q" value="{{ q|default('') }}" placeholder="titre, artiste, mot-clé" class="search-block__input">
+                <input type="search" id="profile-q" name="q" value="{{ q|default('') }}" placeholder="titre, artiste, mot-clé" class="search-block__input" maxlength="100">
             </div>
             <div class="search-block__actions">
                 <button type="submit" class="btn btn--accent">Chercher →</button>
@@ -111,7 +111,7 @@
                                 <div class="owner-actions">
                                     <button type="button" class="owner-action btn-choose-album" data-spotify-id="{{ review.album.spotifyId }}">+ Révision</button>
                                     <button type="button" class="owner-action btn-edit-review" data-id="{{ review.id }}">Modifier</button>
-                                    <form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" onsubmit="return confirm('Supprimer cette critique ?');">
+                                    <form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" data-confirm="Supprimer cette critique ?">
                                         <input type="hidden" name="_token" value="{{ csrf_token('delete_review_' ~ review.id) }}">
                                         <button type="submit" class="owner-action owner-action--danger">Supprimer</button>
                                     </form>

@@ -5,12 +5,15 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\ProfileFormType;
 use App\Repository\ReviewRepository;
+use App\Service\AvatarUploader;
+use App\Util\SearchQuery;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bridge\Doctrine\Attribute\MapEntity;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\Form\FormError;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -37,7 +40,8 @@ class ProfileController extends AbstractController
         Request $request,
         EntityManagerInterface $em,
         Security $security,
-        #[Autowire('%kernel.project_dir%/public/uploads/avatars')] string $avatarDir
+        AvatarUploader $avatarUploader,
+        #[Autowire('%app.avatar_dir%')] string $avatarDir
     ): Response {
         /** @var User|null $user */
         $user = $this->getUser();
@@ -62,9 +66,14 @@ class ProfileController extends AbstractController
             $avatarFile = $form->get('avatarFile')->getData();
 
             if ($avatarFile) {
-                $filename = bin2hex(random_bytes(12)) . '.' . ($avatarFile->guessExtension() ?? 'jpg');
-                $avatarFile->move($avatarDir, $filename);
-                $user->setAvatar($filename);
+                try {
+                    $user->setAvatar($avatarUploader->upload($avatarFile));
+                } catch (\RuntimeException) {
+                    $em->refresh($user);
+                    $form->get('avatarFile')->addError(new FormError('Impossible de lire cette image, essaie avec un autre fichier.'));
+
+                    return $this->render('profile/edit.html.twig', ['form' => $form]);
+                }
             } elseif ($form->get('removeAvatar')->getData()) {
                 $user->setAvatar(null);
             }
@@ -98,7 +107,7 @@ class ProfileController extends AbstractController
         Request $request,
         ReviewRepository $reviewRepository
     ): Response {
-        $q = trim((string) $request->query->get('q', ''));
+        $q = SearchQuery::normalize($request->query->get('q'));
 
         $reviews = $q !== ''
             ? $reviewRepository->searchInUserReviews($user, $q)

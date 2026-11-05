@@ -79,7 +79,7 @@
             <div class="owner-actions">
                 <button type="button" class="owner-action btn-choose-album" data-spotify-id="{{ review.album ? review.album.spotifyId : '' }}">+ Révision</button>
                 <button type="button" class="owner-action btn-edit-review" data-id="{{ review.id }}">Modifier</button>
-                <form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" onsubmit="return confirm('Supprimer cette critique ?');">
+                <form action="{{ path('app_post_delete', {id: review.id}) }}" method="post" data-confirm="Supprimer cette critique ?">
                     <input type="hidden" name="_token" value="{{ csrf_token('delete_review_' ~ review.id) }}">
                     <button type="submit" class="owner-action owner-action--danger">Supprimer</button>
                 </form>

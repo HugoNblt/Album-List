@@ -40,6 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     document.addEventListener('click', async (e) => {
 
+        // --- 3.0. Boutons de fermeture des modales ---
+        const btnClose = e.target.closest('[data-close-dialog]');
+        if (btnClose) {
+            closeModal(document.getElementById(btnClose.dataset.closeDialog));
+            return;
+        }
+
         // --- 3.1. Modifier une review ---
         const btnEdit = e.target.closest('.btn-edit-review');
         if (btnEdit && reviewModal) {
@@ -117,7 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const countSpan = btnLike.querySelector('.like-count');
 
             try {
-                const response = await fetch(url, { method: 'POST' });
+                const csrf = document.querySelector('meta[name="csrf-like"]');
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-Token': csrf ? csrf.content : '' }
+                });
 
                 if (response.status === 401) {
                     window.location.href = '/login';
@@ -145,6 +156,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // 4. DÉLÉGATION GLOBALE DES SOUMISSIONS DE FORMULAIRES
     // ==========================================
     document.body.addEventListener('submit', (e) => {
+        // Confirmation avant les actions destructrices (ex. suppression d'une critique)
+        if (e.target.dataset.confirm && !confirm(e.target.dataset.confirm)) {
+            e.preventDefault();
+            return;
+        }
+
         if (e.target.id === 'modal-search-form') {
             e.preventDefault();
             const q = new FormData(e.target).get('q');
@@ -302,7 +319,36 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    function setFormBusy(form, busy) {
+        const submit = form.querySelector('[type="submit"]');
+        form.dataset.submitting = busy ? 'true' : '';
+        form.setAttribute('aria-busy', String(busy));
+        if (!submit) return;
+        if (busy) {
+            submit.dataset.label = submit.textContent;
+            submit.innerHTML = '<span class="spinner" aria-hidden="true"></span> Publication…';
+        } else if (submit.dataset.label) {
+            submit.textContent = submit.dataset.label;
+        }
+        submit.disabled = busy;
+    }
+
+    function showFormAlert(form, message) {
+        let alert = form.querySelector('.form-alert');
+        if (!alert) {
+            alert = document.createElement('p');
+            alert.className = 'form-alert';
+            alert.setAttribute('role', 'alert');
+            form.prepend(alert);
+        }
+        alert.textContent = message;
+    }
+
     function handleAjaxFormPost(form) {
+        // Empêche les envois multiples (double clic / spam du bouton)
+        if (form.dataset.submitting === 'true') return;
+        setFormBusy(form, true);
+
         const formData = new FormData(form);
         fetch(form.action, {
             method: 'POST',
@@ -320,11 +366,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await res.json();
             if (data.status === 'success') {
+                // On garde le bouton désactivé jusqu'à la redirection
                 if (reviewModal) closeModal(reviewModal);
                 window.location.href = data.redirect;
+                return;
             }
+            setFormBusy(form, false);
+            showFormAlert(form, data.message || 'La publication a échoué, réessaie.');
         })
-        .catch(err => console.error('Erreur traitement formulaire AJAX :', err));
+        .catch((err) => {
+            console.error('Erreur traitement formulaire AJAX :', err);
+            setFormBusy(form, false);
+            showFormAlert(form, 'Connexion impossible, vérifie ton réseau et réessaie.');
+        });
     }
 
 });
