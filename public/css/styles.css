@@ -98,6 +98,54 @@ h1, h2, h3, h4, p, ul, ol, dl, dd {
     outline-offset: 2px;
 }
 
+/* Les champs gardent un contour au focus, même au clic */
+input:focus,
+textarea:focus,
+select:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* L'en-tête collant ne doit pas masquer l'élément qui reçoit le focus */
+html {
+    scroll-padding-top: 140px;
+}
+
+/* Lien « Aller au contenu » : visible uniquement au focus clavier */
+.skip-link {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 1000;
+    padding: 12px 16px;
+    background: var(--accent);
+    color: var(--bg);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-transform: uppercase;
+    transform: translateY(-200%);
+}
+
+.skip-link:focus {
+    transform: none;
+}
+
+main:focus {
+    outline: none;
+}
+
+/* Les états de survol s'appliquent aussi au focus clavier */
+.listen-link:focus-visible,
+.owner-action:focus-visible {
+    background: var(--surface);
+}
+
+.star-picker__half:focus-visible {
+    outline-offset: -2px;
+}
+
 .sr-only {
     position: absolute;
     width: 1px;
@@ -429,7 +477,6 @@ h1, h2, h3, h4, p, ul, ol, dl, dd {
     font-size: var(--fs-lg);
     font-stretch: 75%;
     font-weight: 700;
-    outline: none;
 }
 
 .search-block__input::placeholder {
@@ -1618,7 +1665,6 @@ h1, h2, h3, h4, p, ul, ol, dl, dd {
     font-size: 1rem; /* ≥16px : évite le zoom automatique sur iOS */
     line-height: 1.5;
     resize: vertical;
-    outline: none;
 }
 
 .modal-field textarea::placeholder {
@@ -1807,7 +1853,6 @@ h1, h2, h3, h4, p, ul, ol, dl, dd {
     background: var(--field);
     color: var(--text);
     font-size: 1rem; /* ≥16px : évite le zoom automatique sur iOS */
-    outline: none;
 }
 
 .form-input::placeholder {

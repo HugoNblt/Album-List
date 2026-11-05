@@ -140,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (countSpan) countSpan.textContent = data.count;
 
                     btnLike.classList.toggle('is-liked', data.isLiked);
+                    btnLike.setAttribute('aria-pressed', String(data.isLiked));
                     if (heartIcon) {
                         heartIcon.setAttribute('fill', data.isLiked ? 'currentColor' : 'none');
                     }
@@ -178,6 +179,32 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             handleAjaxFormPost(e.target);
         }
+    });
+
+    // ==========================================
+    // 4 bis. CLAVIER : flèches dans le sélecteur d'étoiles
+    // ==========================================
+    document.addEventListener('keydown', (e) => {
+        const half = e.target.closest('.star-picker__half');
+        if (!half) return;
+
+        const current = Number(half.dataset.value);
+        const next = {
+            ArrowRight: current + 1,
+            ArrowUp: current + 1,
+            ArrowLeft: current - 1,
+            ArrowDown: current - 1,
+            Home: 1,
+            End: 10,
+        }[e.key];
+        if (next === undefined) return;
+
+        e.preventDefault();
+        const value = Math.min(10, Math.max(1, next));
+        const field = half.closest('.star-field');
+        setStarRating(field, value);
+        const target = field.querySelector(`.star-picker__half[data-value="${value}"]`);
+        if (target) target.focus();
     });
 
     // ==========================================
@@ -272,6 +299,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const errors = field.querySelector('.form-errors');
         if (errors && value) errors.textContent = '';
+
+        // Groupe radio : une seule demi-étoile atteignable au Tab (la note choisie, sinon la première)
+        const halves = [...field.querySelectorAll('.star-picker__half')];
+        halves.forEach((half) => {
+            const checked = Number(half.dataset.value) === value;
+            half.setAttribute('aria-checked', String(checked));
+            half.tabIndex = checked || (!value && half === halves[0]) ? 0 : -1;
+        });
     }
 
     function initStarFields(root) {
@@ -311,6 +346,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (modalBody) {
                     modalBody.innerHTML = html;
                     initStarFields(modalBody);
+                    focusFirst(modalBody);
                 }
             })
             .catch(err => {

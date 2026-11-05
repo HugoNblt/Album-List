@@ -18,6 +18,7 @@
         {% endblock %}
     </head>
     <body>
+        <a href="#main" class="skip-link">Aller au contenu</a>
         {% block header %}
             {% set route = app.request.attributes.get('_route') %}
             {% set onOwnProfile = app.user and route == 'app_profile_show' and app.request.attributes.get('username') == app.user.username %}
@@ -47,7 +48,7 @@
             </header>
         {% endblock %}
 
-        <main>
+        <main id="main" tabindex="-1">
             {% for message in app.flashes('success') %}
                 <div class="container">
                     <div class="flash-message" role="status">{{ message }}</div>

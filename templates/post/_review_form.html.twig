@@ -15,19 +15,19 @@
 {{ form_start(form, { attr: { id: formId, novalidate: 'novalidate' } }) }}
     {# Note : sélecteur d'étoiles qui alimente le champ caché « rating » #}
     <fieldset class="rating-field star-field">
-        <legend class="eyebrow">Ta note — moitié gauche d'une étoile = demi-étoile</legend>
+        <legend class="eyebrow">Ta note — moitié gauche d'une étoile = demi-étoile, ou flèches du clavier</legend>
         <div class="rating-display" aria-live="polite">
             <span class="rating-display__value">{{ form.rating.vars.value ?: '–' }}</span>
             <span class="rating-display__max">/10</span>
             <span class="rating-display__verdict"></span>
         </div>
-        <div class="star-picker">
+        <div class="star-picker" role="radiogroup" aria-label="Note sur 10">
             {% for i in 1..5 %}
                 <span class="star">
                     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.7 7.3L12 17.8 5.7 21.5l1.7-7.3L2 9.5l7.1-.6z"/></svg>
                     <span class="star__fill"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.7 7.3L12 17.8 5.7 21.5l1.7-7.3L2 9.5l7.1-.6z"/></svg></span>
-                    <button type="button" class="star-picker__half star-picker__half--low" data-value="{{ i * 2 - 1 }}" aria-label="Note {{ i * 2 - 1 }} sur 10"></button>
-                    <button type="button" class="star-picker__half star-picker__half--high" data-value="{{ i * 2 }}" aria-label="Note {{ i * 2 }} sur 10"></button>
+                    <button type="button" class="star-picker__half star-picker__half--low" role="radio" aria-checked="false" tabindex="-1" data-value="{{ i * 2 - 1 }}" aria-label="{{ i * 2 - 1 }} sur 10"></button>
+                    <button type="button" class="star-picker__half star-picker__half--high" role="radio" aria-checked="false" tabindex="-1" data-value="{{ i * 2 }}" aria-label="{{ i * 2 }} sur 10"></button>
                 </span>
             {% endfor %}
         </div>
