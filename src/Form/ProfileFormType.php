@@ -12,6 +12,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Image;
 
+/**
+ * @extends AbstractType<User>
+ */
 class ProfileFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -19,7 +22,7 @@ class ProfileFormType extends AbstractType
         $builder
             ->add('username', TextType::class, [
                 'label' => 'Pseudo',
-                'attr' => ['class' => 'form-input'],
+                'attr' => ['class' => 'form-input', 'maxlength' => 20, 'pattern' => '[A-Za-z0-9_.\\-]{3,20}'],
             ])
             ->add('bio', TextareaType::class, [
                 'label' => 'Description',

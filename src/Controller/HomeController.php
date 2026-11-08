@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Repository\ReviewRepository;
 use App\Repository\UserRepository;
+use App\Util\SearchQuery;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -17,16 +18,12 @@ public function index(
     ReviewRepository $reviewRepository, 
     UserRepository $userRepository
 ): Response {
-    $q = trim((string) $request->query->get('q', ''));
+    $q = SearchQuery::normalize($request->query->get('q'));
 
     if ($q !== '') {
         $reviews = $reviewRepository->search($q);
         // On récupère les utilisateurs correspondants
-        $users = $userRepository->createQueryBuilder('u')
-            ->where('u.username LIKE :q')
-            ->setParameter('q', '%' . $q . '%')
-            ->getQuery()
-            ->getResult();
+        $users = $userRepository->searchByUsername($q);
     } else {
         $reviews = $reviewRepository->findBy([], ['createdAt' => 'DESC']);
         $users = [];
@@ -39,4 +36,4 @@ public function index(
     'query' => $q, // 👈 Ajoute cette ligne si ton template attend "query"
 ]);
 }
-}
+}

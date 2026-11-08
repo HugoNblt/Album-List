@@ -5,11 +5,15 @@ namespace App\Controller;
 use App\Service\SpotifyService;
 use App\Entity\Album;
 use App\Entity\Review;
+use App\Entity\User;
 use App\Form\ReviewType;
-use App\Controller\App\Entity;
+use App\Util\SearchQuery;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\RateLimiter\RateLimiterFactoryInterface;
+use Symfony\Contracts\HttpClient\Exception\ExceptionInterface as HttpClientExceptionInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PostController extends AbstractController
@@ -22,32 +26,56 @@ class PostController extends AbstractController
     }
 
     #[Route('/modal/search-results', name: 'app_modal_search_results', methods: ['GET'])]
-    public function modalSearchResults(Request $request, \App\Service\SpotifyService $spotifyService): Response
-    {
-        $query = $request->query->get('q', '');
-        $albums = $query ? $spotifyService->searchAlbums($query) : [];
+    public function modalSearchResults(
+        Request $request,
+        \App\Service\SpotifyService $spotifyService,
+        #[Autowire(service: 'limiter.spotify_search')] RateLimiterFactoryInterface $searchLimiter
+    ): Response {
+        $query = SearchQuery::normalize($request->query->get('q'));
+        $error = null;
+        $albums = [];
+
+        $user = $this->getUser();
+        $limiterKey = $user instanceof User ? 'user_' . $user->getId() : 'ip_' . $request->getClientIp();
+
+        if ($query && !$searchLimiter->create($limiterKey)->consume()->isAccepted()) {
+            $error = 'Trop de recherches d\'un coup : patiente une minute avant de relancer.';
+        } elseif ($query) {
+            try {
+                $albums = $spotifyService->searchAlbums($query);
+            } catch (HttpClientExceptionInterface) {
+                $error = 'Spotify est momentanément indisponible, réessaie dans quelques instants.';
+            }
+        }
 
         return $this->render('post/_modal_results.html.twig', [
             'albums' => $albums,
             'query' => $query,
+            'error' => $error,
         ]);
     }
 
-    #[Route('/modal/write/{spotifyId}', name: 'app_modal_write', methods: ['GET', 'POST'])]
+    #[Route('/modal/write/{spotifyId}', name: 'app_modal_write', requirements: ['spotifyId' => '[A-Za-z0-9-]{1,64}'], methods: ['GET', 'POST'])]
     public function modalWrite(
         string $spotifyId,
         Request $request,
         SpotifyService $spotifyService,
         \App\Repository\AlbumRepository $albumRepository,
-        \Doctrine\ORM\EntityManagerInterface $em
+        \Doctrine\ORM\EntityManagerInterface $em,
+        #[Autowire(service: 'limiter.review_publish')] RateLimiterFactoryInterface $publishLimiter
     ): Response {
-        if (!$this->getUser()) {
+        $user = $this->getUser();
+        if (!$user instanceof User) {
             return new Response('Non autorisé', 403);
         }
 
         $album = $albumRepository->findOneBy(['spotifyId' => $spotifyId]);
         if (!$album) {
-            $spotifyData = $spotifyService->getAlbum($spotifyId);
+            try {
+                $spotifyData = $spotifyService->getAlbum($spotifyId);
+            } catch (HttpClientExceptionInterface) {
+                return new Response('<p class="form-alert">Spotify est momentanément indisponible, réessaie dans quelques instants.</p>', 503);
+            }
             if (!$spotifyData) {
                 return new Response('Album introuvable sur Spotify', 404);
             }
@@ -57,7 +85,7 @@ class PostController extends AbstractController
             $album->setTitle($spotifyData['name']);
             $album->setArtist($spotifyData['artists'][0]['name']);
             $album->setReleaseYear((int) substr($spotifyData['release_date'], 0, 4));
-            $album->setCoverImage($spotifyData['images'][1]['url'] ?? 'https://via.placeholder.com/300');
+            $album->setCoverImage($spotifyData['images'][1]['url'] ?? $spotifyData['images'][0]['url'] ?? null);
             
             $em->persist($album);
         }
@@ -69,8 +97,17 @@ class PostController extends AbstractController
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            // Anti-spam : une publication toutes les 15 secondes par utilisateur
+            $limit = $publishLimiter->create('user_' . $user->getId())->consume();
+            if (!$limit->isAccepted()) {
+                return $this->json([
+                    'status' => 'error',
+                    'message' => 'Doucement : il faut attendre 15 secondes entre deux publications.',
+                ], Response::HTTP_TOO_MANY_REQUESTS);
+            }
+
             $review->setAlbum($album);
-            $review->setUser($this->getUser());
+            $review->setUser($user);
             $review->setCreatedAt(new \DateTimeImmutable());
             
             $em->persist($review);

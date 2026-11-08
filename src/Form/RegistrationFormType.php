@@ -11,7 +11,11 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
 use Symfony\Component\Validator\Constraints\NotBlank;
+use Symfony\Component\Validator\Constraints\NotCompromisedPassword;
 
+/**
+ * @extends AbstractType<User>
+ */
 class RegistrationFormType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
@@ -19,7 +23,7 @@ class RegistrationFormType extends AbstractType
         $builder
             ->add('username', TextType::class, [
                 'label' => 'Pseudo',
-                'attr' => ['placeholder' => 'Ton pseudo', 'class' => 'form-input'],
+                'attr' => ['placeholder' => 'Ton pseudo', 'class' => 'form-input', 'maxlength' => 20, 'pattern' => '[A-Za-z0-9_.\\-]{3,20}'],
             ])
             ->add('email', EmailType::class, [
                 'label' => 'Email',
@@ -34,14 +38,17 @@ class RegistrationFormType extends AbstractType
                     'class' => 'form-input',
                 ],
                 'constraints' => [
-                    new NotBlank([
-                        'message' => 'Veuillez saisir un mot de passe.',
-                    ]),
-                    new Length([
-                        'min' => 6,
-                        'minMessage' => 'Votre mot de passe doit faire au moins {{ limit }} caractères.',
-                        'max' => 4096,
-                    ]),
+                    new NotBlank(message: 'Veuillez saisir un mot de passe.'),
+                    new Length(
+                        min: 8,
+                        max: 4096,
+                        minMessage: 'Votre mot de passe doit faire au moins {{ limit }} caractères.',
+                    ),
+                    // Vérifie (de façon anonyme) que le mot de passe n'apparaît pas dans une fuite connue
+                    new NotCompromisedPassword(
+                        message: 'Ce mot de passe apparaît dans une fuite de données connue, choisis-en un autre.',
+                        skipOnError: true,
+                    ),
                 ],
             ]);
     }

@@ -8,6 +8,11 @@
         <h1>Inscription</h1>
 
         {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            {# Erreurs globales (ex. limite d'inscriptions atteinte) #}
+            {% for error in registrationForm.vars.errors %}
+                <div class="form-alert" role="alert">{{ error.message }}</div>
+            {% endfor %}
             
             {# Champ Pseudo #}
             <div class="form-group">

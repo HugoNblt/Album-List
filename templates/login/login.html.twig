@@ -1,11 +1,11 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Log in!{% endblock %}
+{% block title %}Connexion{% endblock %}
 
 {% block body %}
 <div class="register-container">
     <form method="post" class="register-card login-card">
-        <h1>Please sign in</h1>
+        <h1>Connexion</h1>
 
         {% if error %}
             <div class="form-alert">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
@@ -13,13 +13,13 @@
 
         {% if app.user %}
             <div class="register-footer-link">
-                You are logged in as {{ app.user.userIdentifier }}, <a href="{{ logout_path() }}">Logout</a>
+                Tu es connecté en tant que {{ app.user.userIdentifier }}. <a href="{{ logout_path() }}">Se déconnecter</a>
             </div>
         {% endif %}
 
         <label for="username">Email</label>
         <input type="email" value="{{ last_username }}" name="_username" id="username" class="form-input" autocomplete="email" required autofocus>
-        <label for="password">Password</label>
+        <label for="password">Mot de passe</label>
         <input type="password" name="_password" id="password" class="form-input" autocomplete="current-password" required>
         <input type="hidden" name="_csrf_token" data-controller="csrf-protection" value="{{ csrf_token('authenticate') }}">
 
@@ -34,11 +34,11 @@
         #}
 
         <button class="btn-primary-submit" type="submit">
-            Sign in
+            Se connecter
         </button>
 
         <div class="register-footer-link">
-            <a href="{{ path('app_register') }}">Don't have an account ?</a>
+            Pas encore de compte ? <a href="{{ path('app_register') }}">S'inscrire</a>
         </div>
     </form>
 </div>

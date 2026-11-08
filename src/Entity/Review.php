@@ -3,10 +3,12 @@
 namespace App\Entity;
 
 use App\Repository\ReviewRepository;
+use App\Util\TextSanitizer;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ReviewRepository::class)]
 class Review
@@ -17,9 +19,13 @@ class Review
     private ?int $id = null;
 
     #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Écris quelques mots sur cet album.')]
+    #[Assert\Length(max: 3000, maxMessage: 'Ta critique ne doit pas dépasser {{ limit }} caractères.')]
     private ?string $content = null;
 
     #[ORM\Column]
+    #[Assert\NotNull(message: 'Choisis une note.')]
+    #[Assert\Range(min: 1, max: 10, notInRangeMessage: 'La note doit être comprise entre {{ min }} et {{ max }}.')]
     private ?int $rating = null;
 
     #[ORM\Column]
@@ -31,6 +37,9 @@ class Review
     #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'revisions')]
     private ?self $previousReview = null;
 
+    /**
+     * @var Collection<int, User>
+     */
     #[ORM\ManyToMany(targetEntity: User::class)]
     #[ORM\JoinTable(name: 'review_likes')]
     private Collection $likes;
@@ -41,7 +50,7 @@ class Review
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'previousReview')]
     private Collection $revisions;
 
-    #[ORM\ManyToOne(inversedBy: 'reviews')]
+    #[ORM\ManyToOne(targetEntity: User::class)]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $user = null;
 
@@ -65,9 +74,9 @@ private ?Album $album = null;
         return $this->content;
     }
 
-    public function setContent(string $content): static
+    public function setContent(?string $content): static
     {
-        $this->content = $content;
+        $this->content = TextSanitizer::multiline($content);
 
         return $this;
     }
@@ -77,7 +86,7 @@ private ?Album $album = null;
         return $this->rating;
     }
 
-    public function setRating(int $rating): static
+    public function setRating(?int $rating): static
     {
         $this->rating = $rating;
 

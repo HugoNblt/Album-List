@@ -5,6 +5,7 @@ namespace App\Repository;
 namespace App\Entity;
 
 use App\Repository\UserRepository;
+use App\Util\TextSanitizer;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -24,7 +25,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 180, unique: true)]
     #[Assert\NotBlank(message: 'Veuillez saisir un pseudo.')]
-    #[Assert\Length(min: 3, minMessage: 'Le pseudo doit contenir au moins {{ limit }} caractères.')]
+    #[Assert\Length(
+        min: 3,
+        max: 20,
+        minMessage: 'Le pseudo doit contenir au moins {{ limit }} caractères.',
+        maxMessage: 'Le pseudo ne doit pas dépasser {{ limit }} caractères.',
+    )]
+    #[Assert\Regex(
+        pattern: '/^[A-Za-z0-9_.-]+$/',
+        message: 'Le pseudo ne peut contenir que des lettres sans accent, des chiffres et les caractères _ . -',
+    )]
     private ?string $username = null;
 
     #[ORM\Column(length: 180, unique: true)]
@@ -32,6 +42,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Email(message: 'L\'email {{ value }} n\'est pas valide.')]
     private ?string $email = null;
 
+    /** @var list<string> */
     #[ORM\Column]
     private array $roles = [];
 
@@ -57,7 +68,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setUsername(string $username): static
     {
-        $this->username =$username;
+        $this->username = TextSanitizer::line($username);
         return $this;
     }
 
@@ -68,7 +79,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setEmail(string $email): static
     {
-        $this->email =$email;
+        $this->email = mb_strtolower(TextSanitizer::line($email));
         return $this;
     }
 
@@ -84,6 +95,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return array_unique($roles);
     }
 
+    /** @param list<string> $roles */
     public function setRoles(array $roles): static
     {
         $this->roles =$roles;
@@ -119,7 +131,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     public function setBio(?string $bio): static
     {
-        $this->bio = $bio;
+        $bio = TextSanitizer::multiline($bio);
+        $this->bio = $bio === '' ? null : $bio;
         return $this;
     }
 

@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Review;
 use App\Entity\User;
+use App\Util\SearchQuery;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -19,6 +20,8 @@ class ReviewRepository extends ServiceEntityRepository
 
     /**
      * Recherche dans les critiques d'un utilisateur spécifique
+     *
+     * @return list<Review>
      */
     public function searchInUserReviews(User $user, string $query): array
     {
@@ -28,7 +31,7 @@ class ReviewRepository extends ServiceEntityRepository
             ->where('r.user = :user')
             ->andWhere('a.title LIKE :q OR a.artist LIKE :q OR r.content LIKE :q')
             ->setParameter('user', $user)
-            ->setParameter('q', '%' . $query . '%')
+            ->setParameter('q', SearchQuery::contains($query))
             ->orderBy('r.createdAt', 'DESC')
             ->getQuery()
             ->getResult(); // Ne posera plus d'erreur !
@@ -57,6 +60,8 @@ class ReviewRepository extends ServiceEntityRepository
 
     /**
      * Recherche globale dans toutes les critiques
+     *
+     * @return list<Review>
      */
     public function search(string $query): array
     {
@@ -64,7 +69,7 @@ class ReviewRepository extends ServiceEntityRepository
             ->leftJoin('r.album', 'a')
             ->addSelect('a')
             ->where('a.title LIKE :q OR a.artist LIKE :q OR r.content LIKE :q')
-            ->setParameter('q', '%' . $query . '%')
+            ->setParameter('q', SearchQuery::contains($query))
             ->orderBy('r.createdAt', 'DESC')
             ->getQuery()
             ->getResult();

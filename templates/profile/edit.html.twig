@@ -13,9 +13,9 @@
             <div class="form-group">
                 <div class="profile-edit-avatar">
                     {% if app.user.avatar %}
-                        <img src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="Photo de profil actuelle" class="profile-avatar">
+                        <img src="{{ asset('uploads/avatars/' ~ app.user.avatar) }}" alt="Photo de profil actuelle" class="avatar">
                     {% else %}
-                        <div class="profile-avatar">{{ app.user.username|first|upper }}</div>
+                        <div class="avatar">{{ app.user.username|first|upper }}</div>
                     {% endif %}
                     <div class="profile-edit-avatar-fields">
                         {{ form_label(form.avatarFile) }}
