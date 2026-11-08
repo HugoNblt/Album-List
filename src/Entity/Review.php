@@ -1,0 +1,215 @@
+<?php
+
+namespace App\Entity;
+
+use App\Repository\ReviewRepository;
+use App\Util\TextSanitizer;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\DBAL\Types\Types;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+
+#[ORM\Entity(repositoryClass: ReviewRepository::class)]
+class Review
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column]
+    private ?int $id = null;
+
+    #[ORM\Column(type: Types::TEXT)]
+    #[Assert\NotBlank(message: 'Écris quelques mots sur cet album.')]
+    #[Assert\Length(max: 3000, maxMessage: 'Ta critique ne doit pas dépasser {{ limit }} caractères.')]
+    private ?string $content = null;
+
+    #[ORM\Column]
+    #[Assert\NotNull(message: 'Choisis une note.')]
+    #[Assert\Range(min: 1, max: 10, notInRangeMessage: 'La note doit être comprise entre {{ min }} et {{ max }}.')]
+    private ?int $rating = null;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTime $updatedAt = null;
+
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'revisions')]
+    private ?self $previousReview = null;
+
+    /**
+     * @var Collection<int, User>
+     */
+    #[ORM\ManyToMany(targetEntity: User::class)]
+    #[ORM\JoinTable(name: 'review_likes')]
+    private Collection $likes;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'previousReview')]
+    private Collection $revisions;
+
+    #[ORM\ManyToOne(targetEntity: User::class)]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
+   #[ORM\ManyToOne(targetEntity: Album::class, inversedBy: 'reviews')]
+#[ORM\JoinColumn(nullable: false)]
+private ?Album $album = null;
+
+    public function __construct()
+    {
+        $this->revisions = new ArrayCollection();
+        $this->likes = new ArrayCollection();
+    }
+
+    public function getId(): ?int
+    {
+        return $this->id;
+    }
+
+    public function getContent(): ?string
+    {
+        return $this->content;
+    }
+
+    public function setContent(?string $content): static
+    {
+        $this->content = TextSanitizer::multiline($content);
+
+        return $this;
+    }
+
+    public function getRating(): ?int
+    {
+        return $this->rating;
+    }
+
+    public function setRating(?int $rating): static
+    {
+        $this->rating = $rating;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getUpdatedAt(): ?\DateTime
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(?\DateTime $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getPreviousReview(): ?self
+    {
+        return $this->previousReview;
+    }
+
+    public function setPreviousReview(?self $previousReview): static
+    {
+        $this->previousReview = $previousReview;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getRevisions(): Collection
+    {
+        return $this->revisions;
+    }
+
+    public function addRevision(self $revision): static
+    {
+        if (!$this->revisions->contains($revision)) {
+            $this->revisions->add($revision);
+            $revision->setPreviousReview($this);
+        }
+
+        return $this;
+    }
+
+    public function removeRevision(self $revision): static
+    {
+        if ($this->revisions->removeElement($revision)) {
+            // set the owning side to null (unless already changed)
+            if ($revision->getPreviousReview() === $this) {
+                $revision->setPreviousReview(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
+
+        return $this;
+    }
+
+    public function getAlbum(): ?Album
+    {
+        return $this->album;
+    }
+
+    public function setAlbum(?Album $album): static
+    {
+        $this->album = $album;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, User>
+     */
+    public function getLikes(): Collection
+    {
+        return $this->likes;
+    }
+
+    public function addLike(User $user): self
+    {
+        if (!$this->likes->contains($user)) {
+            $this->likes->add($user);
+        }
+        return $this;
+    }
+
+    public function removeLike(User $user): self
+    {
+        $this->likes->removeElement($user);
+        return $this;
+    }
+
+    public function isLikedByUser(?User $user): bool
+    {
+        if (!$user) {
+            return false;
+        }
+        return $this->likes->contains($user);
+    }
+}

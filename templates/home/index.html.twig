@@ -1,5 +1,72 @@
 {% extends 'base.html.twig' %}
 
-{% block body %}
+{% block title %}
+	Accueil - Fil d'actualité
+{% endblock %}
 
+{% block body %}
+	<div class="container page">
+		{# Barre de recherche #}
+		<form action="{{ path('app_home') }}" method="get" class="search-block search-block--hero" role="search">
+			<div class="search-block__field">
+				<label for="home-q" class="eyebrow">Fouiller le bac — album, artiste ou profil</label>
+				<input type="search" id="home-q" class="search-block__input" maxlength="100" name="q" value="{{ q|default('') }}" placeholder="ex. Sleep Token">
+			</div>
+			<div class="search-block__actions">
+				<button type="submit" class="btn btn--accent">Chercher →</button>
+				{% if query %}
+					<a href="{{ path('app_home') }}" class="btn">Réinitialiser</a>
+				{% endif %}
+			</div>
+		</form>
+
+		{# SECTION : Résultats de la recherche Utilisateurs #}
+		{% if users is defined and users is not empty %}
+			<div class="section-head">
+				<h2 class="section-title section-title--sm">Profils trouvés</h2>
+				<p class="eyebrow">{{ '%02d'|format(users|length) }} profil{{ users|length > 1 ? 's' }}</p>
+			</div>
+			<ul class="user-chips">
+				{% for u in users %}
+					{% if u.username is not empty %}
+						<li>
+							<a href="{{ path('app_profile_show', { username: u.username }) }}" class="user-chip">
+								{% if u.avatar %}
+									<img src="{{ asset('uploads/avatars/' ~ u.avatar) }}" alt="" class="avatar avatar--xs">
+								{% else %}
+									<span class="avatar avatar--xs" aria-hidden="true">{{ u.username|first|upper }}</span>
+								{% endif %}
+								{{ u.username }}
+							</a>
+						</li>
+					{% endif %}
+				{% endfor %}
+			</ul>
+		{% endif %}
+
+		{# SECTION : Critiques (Fil principal ou Résultats) #}
+		<section>
+			<div class="section-head">
+				{% if query %}
+					<h1 class="section-title">Critiques<br>trouvées</h1>
+					<p class="eyebrow">{{ '%02d'|format(reviews|length) }} entrée{{ reviews|length > 1 ? 's' }} pour « {{ query }} »</p>
+				{% else %}
+					<h1 class="section-title">Dernières<br>critiques</h1>
+					<p class="eyebrow">{{ '%02d'|format(reviews|length) }} entrée{{ reviews|length > 1 ? 's' }} · triées par date</p>
+				{% endif %}
+			</div>
+
+			{% if reviews is empty %}
+				<div class="empty-state">
+					<p>Aucune critique trouvée pour « {{ query }} ».</p>
+				</div>
+			{% else %}
+				<div class="reviews-grid">
+					{% for review in reviews %}
+						{% include 'review/_review_card.html.twig' with {'review': review} %}
+					{% endfor %}
+				</div>
+			{% endif %}
+		</section>
+	</div>
 {% endblock %}

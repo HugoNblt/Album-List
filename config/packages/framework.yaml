@@ -13,3 +13,14 @@ when@test:
         test: true
         session:
             storage_factory_id: session.storage.factory.mock_file
+        # Spotify simulé : aucune requête réseau pendant les tests
+        http_client:
+            mock_response_factory: App\Tests\Mock\SpotifyMockResponseFactory
+        # Pas d'appel au service Have I Been Pwned pendant les tests
+        validation:
+            not_compromised_password: false
+        # Compteurs des rate limiters : cache fichier dédié, vidé au début de chaque test (AppWebTestCase)
+        cache:
+            pools:
+                cache.rate_limiter:
+                    adapter: cache.adapter.filesystem

@@ -1,0 +1,22 @@
+framework:
+    rate_limiter:
+        # Une publication de critique (ou de révision) toutes les 15 secondes par utilisateur
+        review_publish:
+            policy: token_bucket
+            limit: 1
+            rate: { interval: '15 seconds', amount: 1 }
+        # Inscriptions : 3 comptes par heure et par adresse IP
+        registration:
+            policy: sliding_window
+            limit: 3
+            interval: '1 hour'
+        # Likes : 30 par minute par utilisateur
+        review_like:
+            policy: sliding_window
+            limit: 30
+            interval: '1 minute'
+        # Recherches Spotify : 20 par minute par utilisateur (ou IP)
+        spotify_search:
+            policy: sliding_window
+            limit: 20
+            interval: '1 minute'

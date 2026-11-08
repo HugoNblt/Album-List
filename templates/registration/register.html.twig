@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscription{% endblock %}
+
+{% block body %}
+<div class="register-container">
+    <div class="register-card">
+        <h1>Inscription</h1>
+
+        {{ form_start(registrationForm, {'attr': {'novalidate': 'novalidate'}}) }}
+
+            {# Erreurs globales (ex. limite d'inscriptions atteinte) #}
+            {% for error in registrationForm.vars.errors %}
+                <div class="form-alert" role="alert">{{ error.message }}</div>
+            {% endfor %}
+            
+            {# Champ Pseudo #}
+            <div class="form-group">
+                {{ form_label(registrationForm.username) }}
+                {{ form_widget(registrationForm.username) }}
+                {% if registrationForm.username.vars.errors|length > 0 %}
+                    <div class="form-error">
+                        {% for error in registrationForm.username.vars.errors %}
+                            <span>{{ error.message }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            {# Champ Email #}
+            <div class="form-group">
+                {{ form_label(registrationForm.email) }}
+                {{ form_widget(registrationForm.email) }}
+                {% if registrationForm.email.vars.errors|length > 0 %}
+                    <div class="form-error">
+                        {% for error in registrationForm.email.vars.errors %}
+                            <span>{{ error.message }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            {# Champ Mot de passe #}
+            <div class="form-group">
+                {{ form_label(registrationForm.plainPassword) }}
+                {{ form_widget(registrationForm.plainPassword) }}
+                {% if registrationForm.plainPassword.vars.errors|length > 0 %}
+                    <div class="form-error">
+                        {% for error in registrationForm.plainPassword.vars.errors %}
+                            <span>{{ error.message }}</span>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn-primary-submit">S'inscrire</button>
+
+        {{ form_end(registrationForm) }}
+
+        <div class="register-footer-link">
+            Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

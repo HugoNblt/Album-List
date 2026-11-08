@@ -1,0 +1,7 @@
+{% include 'post/_review_form.html.twig' with {
+    form: form,
+    album: review.album,
+    formId: 'modal-edit-form',
+    submitLabel: 'Enregistrer',
+    secondary: 'cancel'
+} only %}

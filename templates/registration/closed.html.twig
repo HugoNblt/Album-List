@@ -1,0 +1,18 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Inscriptions fermées{% endblock %}
+
+{% block body %}
+<div class="register-container">
+    <div class="register-card">
+        <h1>Bêta privée</h1>
+        <p class="error-page__text">
+            Album/List est en phase de test : les inscriptions sont fermées pour le moment
+            et l'accès se fait uniquement sur invitation.
+        </p>
+        <div class="register-footer-link">
+            Déjà un compte ? <a href="{{ path('app_login') }}">Se connecter</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
