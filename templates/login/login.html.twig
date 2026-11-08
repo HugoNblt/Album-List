@@ -38,7 +38,11 @@
         </button>
 
         <div class="register-footer-link">
-            Pas encore de compte ? <a href="{{ path('app_register') }}">S'inscrire</a>
+            {% if registration_enabled %}
+                Pas encore de compte ? <a href="{{ path('app_register') }}">S'inscrire</a>
+            {% else %}
+                Bêta privée : l'accès se fait sur invitation.
+            {% endif %}
         </div>
     </form>
 </div>

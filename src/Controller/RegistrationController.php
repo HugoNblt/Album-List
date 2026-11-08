@@ -23,10 +23,16 @@ class RegistrationController extends AbstractController
         UserPasswordHasherInterface $userPasswordHasher, 
         Security $security, 
         EntityManagerInterface $entityManager,
-        #[Autowire(service: 'limiter.registration')] RateLimiterFactoryInterface $registrationLimiter
+        #[Autowire(service: 'limiter.registration')] RateLimiterFactoryInterface $registrationLimiter,
+        #[Autowire('%app.registration_enabled%')] bool $registrationEnabled
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
+        }
+
+        // Bêta privée : les comptes sont créés par l'administrateur (commande app:user:create)
+        if (!$registrationEnabled) {
+            return $this->render('registration/closed.html.twig', [], new Response(status: Response::HTTP_FORBIDDEN));
         }
 
         $user = new User();

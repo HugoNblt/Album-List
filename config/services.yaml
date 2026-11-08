@@ -8,6 +8,7 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     app.avatar_dir: '%kernel.project_dir%/public/uploads/avatars'
+    app.registration_enabled: '%env(bool:APP_REGISTRATION_ENABLED)%'
 
 services:
     # default configuration for services in *this* file
