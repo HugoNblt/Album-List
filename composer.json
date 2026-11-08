@@ -119,6 +119,7 @@
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.7",
+        "deployer/deployer": "^8.0",
         "doctrine/doctrine-fixtures-bundle": "^4.3",
         "fakerphp/faker": "^1.24",
         "phpstan/extension-installer": "^1.4",
