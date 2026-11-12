@@ -1,0 +1,106 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conditions générales d'utilisation{% endblock %}
+
+{% block body %}
+<article class="container page legal-page">
+    <p class="eyebrow">Règles du site</p>
+    <h1 class="section-title">Conditions générales<br>d'utilisation</h1>
+    <p class="legal-page__updated">Version du {{ terms_version|date('d/m/Y') }}</p>
+
+    <section>
+        <h2>1. Objet</h2>
+        <p>
+            Les présentes conditions générales d'utilisation (CGU) encadrent l'utilisation du site
+            album-list.hugonoblot.fr (« le site »), un projet personnel et non commercial édité par Hugo Noblot,
+            qui permet de publier, consulter et partager des critiques d'albums de musique.
+        </p>
+        <p>En créant un compte, vous acceptez les présentes CGU.</p>
+    </section>
+
+    <section>
+        <h2>2. Accès au service</h2>
+        <ul>
+            <li>La consultation du site est libre. La publication de critiques, les likes et la personnalisation du profil nécessitent un compte.</li>
+            <li>Le site est gratuit. Il peut être ouvert en accès restreint (version de test), l'éditeur créant alors lui-même les comptes.</li>
+            <li>Votre compte est personnel. Vous êtes responsable de la confidentialité de votre mot de passe et des actions réalisées depuis votre compte.</li>
+            <li>Les informations fournies (adresse e-mail notamment) doivent être exactes.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>3. Règles de publication</h2>
+        <p>Les critiques doivent porter sur des œuvres musicales. Sont notamment interdits les contenus :</p>
+        <ul>
+            <li>illicites : diffamatoires, injurieux, haineux, discriminatoires, violents ou incitant à la violence ;</li>
+            <li>portant atteinte à la vie privée d'autrui ou divulguant des données personnelles de tiers ;</li>
+            <li>reproduisant des œuvres protégées sans autorisation (paroles complètes, textes d'autres auteurs…) ;</li>
+            <li>à caractère publicitaire, promotionnel ou répétitif (spam) ;</li>
+            <li>sans rapport avec l'objet du site.</li>
+        </ul>
+        <p>Les photos de profil sont soumises aux mêmes règles et ne doivent pas représenter un tiers sans son accord.</p>
+    </section>
+
+    <section>
+        <h2>4. Vos contenus</h2>
+        <p>
+            Vous restez l'auteur des critiques que vous publiez et vous en êtes seul responsable. En les publiant,
+            vous autorisez gratuitement l'éditeur à les afficher sur le site, pour la durée de leur publication.
+            Vous pouvez les modifier ou les supprimer à tout moment.
+        </p>
+    </section>
+
+    <section>
+        <h2>5. Modération et signalement</h2>
+        <p>
+            Tout contenu contraire aux présentes CGU peut être signalé à l'adresse
+            <a href="mailto:hugo.noju9@gmail.com">hugo.noju9@gmail.com</a>.
+            L'éditeur peut retirer un contenu contraire aux CGU et, en cas de manquement grave ou répété,
+            suspendre ou supprimer le compte concerné.
+        </p>
+    </section>
+
+    <section>
+        <h2>6. Suppression du compte</h2>
+        <p>
+            Vous pouvez supprimer votre compte à tout moment depuis « Modifier le profil ». Cette suppression est
+            définitive et entraîne celle de vos critiques (révisions comprises), de vos likes et de votre photo de profil.
+        </p>
+    </section>
+
+    <section>
+        <h2>7. Responsabilité</h2>
+        <ul>
+            <li>Le site est fourni gratuitement, « en l'état », sans garantie de disponibilité continue. Il peut être interrompu, notamment pour maintenance.</li>
+            <li>Les informations sur les albums (titres, artistes, pochettes) proviennent de Spotify ; l'éditeur ne garantit pas leur exactitude.</li>
+            <li>Les liens vers des services de streaming mènent vers des sites tiers, dont l'éditeur n'est pas responsable.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>8. Données personnelles</h2>
+        <p>
+            Le traitement de vos données est décrit dans la
+            <a href="{{ path('app_privacy') }}">politique de confidentialité</a>.
+        </p>
+    </section>
+
+    <section>
+        <h2>9. Modification des CGU</h2>
+        <p>
+            L'éditeur peut modifier les présentes CGU. La date de la version en vigueur figure en haut de cette page.
+            En cas de modification importante, votre accord pourra vous être redemandé.
+        </p>
+    </section>
+
+    <section>
+        <h2>10. Droit applicable</h2>
+        <p>Les présentes CGU sont soumises au droit français.</p>
+    </section>
+
+    <p class="legal-page__links">
+        Voir aussi : <a href="{{ path('app_legal_notice') }}">Mentions légales</a> ·
+        <a href="{{ path('app_privacy') }}">Politique de confidentialité</a>
+    </p>
+</article>
+{% endblock %}

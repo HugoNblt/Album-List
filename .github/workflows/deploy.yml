@@ -1,0 +1,50 @@
+# Déploiement continu : à chaque tag « v* » poussé (ex. v1.1.0), relance la CI
+# puis déploie ce tag sur le VPS avec Deployer.
+# Peut aussi être lancé à la main depuis l'onglet Actions (choix du tag).
+name: Deploy
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag à déployer (ex. v1.0.0)'
+        required: true
+
+# Un seul déploiement à la fois ; un déploiement en cours n'est jamais interrompu
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+jobs:
+  qa:
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    name: Déployer en production
+    needs: qa
+    runs-on: ubuntu-24.04
+    # L'environnement « production » contient les secrets SSH (Settings → Environments)
+    environment:
+      name: production
+      url: https://album-list.hugonoblot.fr
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          tools: composer:v2
+
+      # Installe Deployer (dépendance de dev) à la version figée dans composer.lock
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+
+      - name: Déployer
+        uses: deployphp/action@v1
+        with:
+          dep: deploy --tag=${{ inputs.tag || github.ref_name }}
+          private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          known-hosts: ${{ secrets.SSH_KNOWN_HOSTS }}

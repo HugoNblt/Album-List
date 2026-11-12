@@ -36,6 +36,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ==========================================
+    // 2 bis. POP-UP « BÊTA FERMÉE » (une seule fois par appareil)
+    // ==========================================
+    const betaModal = document.querySelector('[data-beta-notice]');
+    if (betaModal) {
+        const BETA_KEY = 'album-list:beta-notice-seen';
+        let seen = false;
+        try {
+            seen = localStorage.getItem(BETA_KEY) === '1';
+        } catch (err) { /* stockage indisponible : la pop-up s'affichera à chaque visite */ }
+
+        if (!seen) {
+            openModal(betaModal);
+            betaModal.querySelector('.beta-notice__ok')?.focus();
+        }
+        // Fermeture par le bouton, la croix ou Échap : on ne la remontre plus
+        betaModal.addEventListener('close', () => {
+            try {
+                localStorage.setItem(BETA_KEY, '1');
+            } catch (err) { /* stockage indisponible */ }
+        });
+    }
+
+    // ==========================================
     // 3. DÉLÉGATION GLOBALE DES CLICS (Modales & Likes)
     // ==========================================
     document.addEventListener('click', async (e) => {
@@ -208,21 +231,94 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ==========================================
+    // 4 ter. CLAVIER : Entrée valide les zones de texte courtes (Maj+Entrée = retour à la ligne)
+    // ==========================================
+    // Les champs d'une ligne valident déjà leur formulaire avec Entrée (comportement natif).
+    // La critique n'est pas concernée : Entrée y fait toujours un retour à la ligne.
+    document.addEventListener('keydown', (e) => {
+        const area = e.target.closest('textarea[data-submit-on-enter]');
+        if (!area || e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+        e.preventDefault();
+        if (area.form) area.form.requestSubmit();
+    });
+
+    // ==========================================
     // 5. FERMETURE AU CLIC SUR L'ARRIÈRE-PLAN (Backdrop)
     // ==========================================
+    // Le clic doit commencer ET finir hors de la fenêtre : sélectionner du texte dans la critique
+    // et relâcher la souris à l'extérieur ne ferme plus la modale.
     document.querySelectorAll('dialog').forEach((dialog) => {
-        dialog.addEventListener('click', (e) => {
+        const isOutside = (e) => {
             const rect = dialog.getBoundingClientRect();
-            const isInDialog = (
-                rect.top <= e.clientY &&
-                e.clientY <= rect.top + rect.height &&
-                rect.left <= e.clientX &&
-                e.clientX <= rect.left + rect.width
-            );
-            if (!isInDialog) {
+            return e.clientY < rect.top || e.clientY > rect.bottom || e.clientX < rect.left || e.clientX > rect.right;
+        };
+        let pressedOutside = false;
+
+        dialog.addEventListener('pointerdown', (e) => {
+            pressedOutside = e.target === dialog && isOutside(e);
+        });
+        dialog.addEventListener('click', (e) => {
+            const shouldClose = pressedOutside && e.target === dialog && isOutside(e);
+            pressedOutside = false;
+            // Une critique en cours d'écriture ne se ferme jamais par un clic extérieur
+            if (shouldClose && !dialog.querySelector('.review-form')) {
                 closeModal(dialog);
             }
         });
+    });
+
+    // ==========================================
+    // 5 bis. BROUILLONS DES CRITIQUES (sauvegardés sur l'appareil)
+    // ==========================================
+    // Texte et note sont enregistrés à chaque modification et restaurés à la réouverture du formulaire ;
+    // le brouillon n'est effacé qu'une fois la critique publiée.
+    const DRAFT_PREFIX = 'album-list:draft:';
+
+    function draftKey(form) {
+        return DRAFT_PREFIX + new URL(form.action, window.location.href).pathname;
+    }
+
+    function saveDraft(form) {
+        const content = form.querySelector('textarea');
+        const rating = form.querySelector('.rating-input');
+        try {
+            localStorage.setItem(draftKey(form), JSON.stringify({
+                content: content ? content.value : '',
+                rating: rating ? rating.value : '',
+            }));
+        } catch (err) {
+            // Stockage indisponible (navigation privée…) : pas de brouillon, sans bloquer l'écriture
+        }
+    }
+
+    function clearDraft(form) {
+        try {
+            localStorage.removeItem(draftKey(form));
+        } catch (err) { /* stockage indisponible */ }
+    }
+
+    function restoreDraft(form) {
+        let draft = null;
+        try {
+            draft = JSON.parse(localStorage.getItem(draftKey(form)) || 'null');
+        } catch (err) { /* stockage indisponible ou brouillon illisible */ }
+        if (!draft || (!draft.content && !draft.rating)) return;
+
+        const content = form.querySelector('textarea');
+        const field = form.querySelector('.star-field');
+        if (content && draft.content) content.value = draft.content;
+        if (field && draft.rating) setStarRating(field, Number(draft.rating));
+
+        const note = document.createElement('p');
+        note.className = 'draft-note';
+        note.setAttribute('role', 'status');
+        note.textContent = 'Brouillon restauré : tu reprends là où tu t\'étais arrêté.';
+        form.prepend(note);
+    }
+
+    document.addEventListener('input', (e) => {
+        const form = e.target.closest('.review-form');
+        if (form) saveDraft(form);
     });
 
     // ==========================================
@@ -300,6 +396,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const errors = field.querySelector('.form-errors');
         if (errors && value) errors.textContent = '';
 
+        const reviewForm = field.closest('.review-form');
+        if (reviewForm && value) saveDraft(reviewForm);
+
         // Groupe radio : une seule demi-étoile atteignable au Tab (la note choisie, sinon la première)
         const halves = [...field.querySelectorAll('.star-picker__half')];
         halves.forEach((half) => {
@@ -346,6 +445,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (modalBody) {
                     modalBody.innerHTML = html;
                     initStarFields(modalBody);
+                    modalBody.querySelectorAll('.review-form').forEach(restoreDraft);
                     focusFirst(modalBody);
                 }
             })
@@ -402,6 +502,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await res.json();
             if (data.status === 'success') {
+                clearDraft(form);
                 // On garde le bouton désactivé jusqu'à la redirection
                 if (reviewModal) closeModal(reviewModal);
                 window.location.href = data.redirect;

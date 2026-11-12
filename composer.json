@@ -54,7 +54,10 @@
             "phpstan/extension-installer": true
         },
         "bump-after-update": true,
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "8.2.0"
+        }
     },
     "autoload": {
         "psr-4": {
@@ -119,13 +122,14 @@
     },
     "require-dev": {
         "dama/doctrine-test-bundle": "^8.7",
+        "deployer/deployer": "^7.5",
         "doctrine/doctrine-fixtures-bundle": "^4.3",
         "fakerphp/faker": "^1.24",
         "phpstan/extension-installer": "^1.4",
         "phpstan/phpstan": "^2.3",
         "phpstan/phpstan-doctrine": "^2.1",
         "phpstan/phpstan-symfony": "^2.1",
-        "phpunit/phpunit": "^12.5",
+        "phpunit/phpunit": "^11.5",
         "symfony/browser-kit": "7.4.*",
         "symfony/css-selector": "7.4.*",
         "symfony/debug-bundle": "7.4.*",

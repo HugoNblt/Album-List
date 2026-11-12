@@ -48,6 +48,7 @@
             <div class="form-group">
                 {{ form_label(form.bio) }}
                 {{ form_widget(form.bio) }}
+                <p class="form-hint" id="bio-hint">Entrée pour enregistrer, Maj + Entrée pour aller à la ligne.</p>
                 {% for error in form.bio.vars.errors %}
                     <div class="form-error">{{ error.message }}</div>
                 {% endfor %}
@@ -60,6 +61,29 @@
         <div class="register-footer-link">
             <a href="{{ path('app_profile') }}">Retour au profil</a>
         </div>
+
+        {# Zone sensible : suppression définitive du compte #}
+        <section class="danger-zone" aria-labelledby="danger-zone-title">
+            <h2 id="danger-zone-title" class="danger-zone__title">Supprimer mon compte</h2>
+            <p class="danger-zone__text">
+                Ton compte, ta photo de profil et
+                {% if reviewCount > 0 %}
+                    <strong>tes {{ reviewCount }} critique{{ reviewCount > 1 ? 's' }} (révisions comprises)</strong>
+                {% else %}
+                    tes critiques
+                {% endif %}
+                seront supprimés définitivement. Cette action est irréversible.
+            </p>
+            <form action="{{ path('app_profile_delete') }}" method="post"
+                  data-confirm="Supprimer définitivement ton compte{{ reviewCount > 0 ? ' et tes ' ~ reviewCount ~ ' critique' ~ (reviewCount > 1 ? 's' : '') }} ? Cette action est irréversible.">
+                <input type="hidden" name="_token" value="{{ csrf_token('delete_account') }}">
+                <div class="form-group">
+                    <label for="delete-password">Confirme avec ton mot de passe</label>
+                    <input type="password" id="delete-password" name="password" class="form-input" autocomplete="current-password" required>
+                </div>
+                <button type="submit" class="btn btn--danger danger-zone__submit">Supprimer mon compte</button>
+            </form>
+        </section>
     </div>
 </div>
 {% endblock %}

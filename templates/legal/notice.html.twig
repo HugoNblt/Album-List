@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mentions légales{% endblock %}
+
+{% block body %}
+<article class="container page legal-page">
+    <p class="eyebrow">Informations légales</p>
+    <h1 class="section-title">Mentions<br>légales</h1>
+
+    <section>
+        <h2>Éditeur du site</h2>
+        <p>
+            Le site album-list.hugonoblot.fr est un projet personnel non commercial, édité par Hugo Noblot, particulier.<br>
+            Contact : <a href="mailto:hugo.noju9@gmail.com">hugo.noju9@gmail.com</a><br>
+            Directeur de la publication : Hugo Noblot
+        </p>
+    </section>
+
+    <section>
+        <h2>Hébergement</h2>
+        <p>
+            PulseHeberg SAS - 9 boulevard de Strasbourg, 83000 Toulon, France - Tél. : +33 4 22 14 13 60 - <a href="https://pulseheberg.com" target="_blank" rel="noopener noreferrer">pulseheberg.com</a>
+        </p>
+        <p>
+            Le nom de domaine hugonoblot.fr est enregistré auprès d'OVH SAS, 2 rue Kellermann, 59100 Roubaix, France.
+        </p>
+    </section>
+
+    <section>
+        <h2>Contenus publiés par les utilisateurs</h2>
+        <p>
+            Les critiques sont rédigées par les utilisateurs, qui en sont seuls responsables.
+            Tout contenu illicite peut être signalé à l'adresse
+            <a href="mailto:hugo.noju9@gmail.com">hugo.noju9@gmail.com</a> ;
+            il sera examiné et retiré le cas échéant dans les meilleurs délais.
+        </p>
+    </section>
+
+    <section>
+        <h2>Propriété intellectuelle</h2>
+        <p>
+            Les pochettes d'albums et les métadonnées musicales sont fournies par Spotify et restent la propriété
+            de leurs ayants droit respectifs (artistes, labels). Les noms d'artistes et d'albums sont cités à titre
+            d'information. Le code et le design du site sont la propriété de Hugo Noblot.
+        </p>
+    </section>
+
+    <p class="legal-page__links">
+        Voir aussi : <a href="{{ path('app_privacy') }}">Politique de confidentialité</a> ·
+        <a href="{{ path('app_terms') }}">Conditions générales d'utilisation</a>
+    </p>
+</article>
+{% endblock %}

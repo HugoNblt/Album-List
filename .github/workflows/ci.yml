@@ -1,0 +1,64 @@
+# Intégration continue : lance « composer qa » (lint, PHPStan, tests, audit)
+# sur chaque pull request et chaque push sur develop / main.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [develop, main]
+  # Permet au workflow de déploiement de réutiliser ce job avant de déployer
+  workflow_call:
+
+jobs:
+  qa:
+    name: composer qa
+    runs-on: ubuntu-24.04
+
+    # Une vraie base MariaDB (même version que le VPS) pour les tests fonctionnels
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s --health-timeout=5s --health-retries=12
+
+    env:
+      # Base « album_list » pour l'environnement dev, « album_list_test » pour les tests (suffixe ajouté par Doctrine)
+      DATABASE_URL: mysql://root:root@127.0.0.1:3306/album_list?serverVersion=10.11.19-MariaDB&charset=utf8mb4
+      SPOTIFY_CLIENT_ID: ci
+      SPOTIFY_CLIENT_SECRET: ci
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: gd, intl, pdo_mysql, exif, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ hashFiles('composer.lock') }}
+          restore-keys: composer-
+
+      - name: Installer les dépendances
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Préparer les bases de données (dev et test)
+        run: |
+          php bin/console doctrine:database:create --if-not-exists
+          php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
+          composer test:db
+
+      - name: composer qa
+        run: composer qa

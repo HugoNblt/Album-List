@@ -12,7 +12,7 @@
     {% endif %}
 </div>
 
-{{ form_start(form, { attr: { id: formId, novalidate: 'novalidate' } }) }}
+{{ form_start(form, { attr: { id: formId, class: 'review-form', novalidate: 'novalidate' } }) }}
     {# Note : sélecteur d'étoiles qui alimente le champ caché « rating » #}
     <fieldset class="rating-field star-field">
         <legend class="eyebrow">Ta note — moitié gauche d'une étoile = demi-étoile, ou flèches du clavier</legend>

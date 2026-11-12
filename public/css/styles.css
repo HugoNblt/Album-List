@@ -409,6 +409,18 @@ main:focus {
     color: var(--accent);
 }
 
+/* Liens d'information du pied de page (à propos, mentions légales, confidentialité) */
+.site-footer__nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 20px;
+}
+
+a.site-footer__link {
+    display: inline-flex;
+    align-items: center;
+}
+
 @media (min-width: 768px) {
     .site-footer__inner {
         flex-direction: row;
@@ -420,7 +432,7 @@ main:focus {
         font-size: var(--fs-sm);
     }
 
-    .site-footer__link {
+    .site-footer__nav {
         order: 2;
     }
 }
@@ -2015,4 +2027,178 @@ form[aria-busy="true"]::before {
 @keyframes progress {
     from { background-position: -50% 0; }
     to { background-position: 150% 0; }
+}
+
+/* ==========================================================================
+   17. MESSAGES D'ERREUR & ZONE SENSIBLE (suppression du compte)
+   ========================================================================== */
+.flash-message--error {
+    border-color: var(--danger-soft);
+    color: var(--danger-soft);
+}
+
+.danger-zone {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--danger-line);
+}
+
+.danger-zone__title {
+    margin-bottom: 8px;
+    color: var(--danger-soft);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.danger-zone__text {
+    margin-bottom: 16px;
+    color: var(--text-2);
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+.danger-zone__submit {
+    width: 100%;
+    min-height: 48px;
+}
+
+/* ==========================================================================
+   18. PAGES LÉGALES
+   ========================================================================== */
+.legal-page {
+    max-width: 760px;
+}
+
+.legal-page .section-title {
+    margin: 8px 0 24px;
+    font-size: calc(var(--fs-xl) * 0.75);
+}
+
+.legal-page__updated {
+    margin-bottom: 24px;
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+}
+
+.legal-page section {
+    padding: 20px 0;
+    border-top: 1px solid var(--line);
+}
+
+.legal-page h2 {
+    margin-bottom: 10px;
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.legal-page p,
+.legal-page li {
+    color: var(--text-2);
+    line-height: 1.65;
+}
+
+.legal-page p + p {
+    margin-top: 10px;
+}
+
+.legal-page ul {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-left: 18px;
+}
+
+.legal-page strong {
+    color: var(--text);
+}
+
+.legal-page__links {
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-family: var(--font-mono);
+    font-size: var(--fs-sm);
+}
+
+/* Case à cocher avec libellé (acceptation des CGU) */
+.register-card .checkbox-field {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0;
+    color: var(--text-2);
+    font-family: var(--font-display);
+    font-size: 0.9375rem;
+    letter-spacing: 0;
+    line-height: 1.45;
+    text-transform: none;
+    cursor: pointer;
+}
+
+.checkbox-field input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin: 1px 0 0;
+    accent-color: var(--accent);
+}
+
+.checkbox-field a,
+.form-hint a {
+    color: var(--accent);
+}
+
+.form-hint {
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: var(--fs-xs);
+    line-height: 1.5;
+}
+
+/* ==========================================================================
+   19. POP-UP BÊTA FERMÉE & BROUILLONS
+   ========================================================================== */
+.beta-notice__lead {
+    margin-bottom: 12px;
+    font-size: 1.5rem;
+    font-stretch: 75%;
+    font-weight: 800;
+    line-height: 1.1;
+}
+
+.beta-notice__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding-left: 18px;
+    color: var(--text-2);
+    line-height: 1.55;
+}
+
+.beta-notice__list a {
+    color: var(--accent);
+}
+
+.beta-notice__ok {
+    width: 100%;
+    min-height: 52px;
+}
+
+/* Bandeau « brouillon restauré » en haut du formulaire de critique */
+.draft-note {
+    margin-bottom: 16px;
+    padding: 10px 14px;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    font-family: var(--font-mono);
+    font-size: var(--fs-xs);
+    letter-spacing: 0.5px;
 }

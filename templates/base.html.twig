@@ -56,6 +56,11 @@
                     <div class="flash-message" role="status">{{ message }}</div>
                 </div>
             {% endfor %}
+            {% for message in app.flashes('error') %}
+                <div class="container">
+                    <div class="flash-message flash-message--error" role="alert">{{ message }}</div>
+                </div>
+            {% endfor %}
             {% block body %}{% endblock %}
         </main>
 
@@ -104,6 +109,27 @@
             </div>
         </dialog>
 
+        {# Pop-up « bêta fermée » : affichée à la première visite tant que les inscriptions sont fermées #}
+        {% if not registration_enabled %}
+            <dialog id="beta-modal" class="app-modal" aria-labelledby="beta-title" data-beta-notice>
+                <div class="modal-header">
+                    <h2 id="beta-title">Bêta fermée</h2>
+                    <button type="button" class="modal-close-btn" data-close-dialog="beta-modal" aria-label="Fermer">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="beta-notice__lead">Album/List est en phase de test.</p>
+                    <ul class="beta-notice__list">
+                        <li>L'accès se fait <strong>sur invitation</strong> : les inscriptions sont fermées pour le moment.</li>
+                        <li>Des bugs peuvent encore se glisser, et les données publiées pendant la bêta pourraient être réinitialisées.</li>
+                        <li>Tes retours sont précieux : <a href="mailto:hugo.noju9@gmail.com">hugo.noju9@gmail.com</a></li>
+                    </ul>
+                    <button type="button" class="btn btn--accent beta-notice__ok" data-close-dialog="beta-modal">J'ai compris</button>
+                </div>
+            </dialog>
+        {% endif %}
+
         {# Pop-up À propos & Changelog #}
         <dialog id="about-modal" class="app-modal" aria-labelledby="about-title">
             <div class="modal-header">
@@ -127,10 +153,21 @@
                 <section class="about-section">
                     <h3>Changelog</h3>
                     <ul class="changelog-list">
-                        <li><strong>v1.3 :</strong> Nouvelle direction artistique « bac à disques », profils personnalisables et notation par étoiles.</li>
-                        <li><strong>v1.2 :</strong> Intégration du système de likes asynchrones et layout responsive Desktop.</li>
-                        <li><strong>v1.1 :</strong> Ajout des modales AJAX (recherche Spotify, édition, révisions).</li>
-                        <li><strong>v1.0 :</strong> Version initiale mobile (système de notation, cartes de critiques, profils).</li>
+                        <li>
+                            <strong>v1.1.0 (12/11/2026) :</strong> pages Mentions légales, CGU et Politique de confidentialité,
+                            suppression de son compte depuis « Modifier le profil », brouillon automatique des critiques
+                            (plus de texte perdu en fermant la fenêtre), touche Entrée pour enregistrer la description du profil,
+                            et message d'accueil de la bêta fermée.
+                        </li>
+                        <li>
+                            <strong>v1.0.0 (08/11/2026) - bêta privée :</strong> première version en ligne.
+                            Nouvelle direction artistique « bac à disques », notation par étoiles, profils personnalisables
+                            (photo, description, statistiques), choix de la plateforme d'écoute, navigation complète au clavier,
+                            protections anti-spam et renforcement de la sécurité. Inscriptions fermées : accès sur invitation.
+                        </li>
+                        <li><strong>v0.3 :</strong> Intégration du système de likes asynchrones et layout responsive Desktop.</li>
+                        <li><strong>v0.2 :</strong> Ajout des modales AJAX (recherche Spotify, édition, révisions).</li>
+                        <li><strong>v0.1 :</strong> Version initiale mobile (système de notation, cartes de critiques, profils).</li>
                     </ul>
                 </section>
             </div>
@@ -139,7 +176,12 @@
         {% block footer %}
             <footer class="site-footer">
                 <div class="container site-footer__inner">
-                    <button type="button" id="btn-about-trigger" class="site-footer__link">À propos &amp; changelog</button>
+                    <nav class="site-footer__nav" aria-label="Informations">
+                        <button type="button" id="btn-about-trigger" class="site-footer__link">À propos &amp; changelog</button>
+                        <a href="{{ path('app_legal_notice') }}" class="site-footer__link">Mentions légales</a>
+                        <a href="{{ path('app_terms') }}" class="site-footer__link">CGU</a>
+                        <a href="{{ path('app_privacy') }}" class="site-footer__link">Confidentialité</a>
+                    </nav>
                     <span>Album/List — conçu par Hugo Noblot</span>
                 </div>
             </footer>
