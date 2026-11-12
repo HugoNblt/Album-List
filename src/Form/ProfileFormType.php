@@ -32,6 +32,9 @@ class ProfileFormType extends AbstractType
                     'rows' => 4,
                     'maxlength' => 500,
                     'placeholder' => 'Parle un peu de tes goûts musicaux...',
+                    // Entrée enregistre le profil, Maj+Entrée va à la ligne (voir app.js)
+                    'data-submit-on-enter' => 'true',
+                    'aria-describedby' => 'bio-hint',
                 ],
             ])
             ->add('avatarFile', FileType::class, [

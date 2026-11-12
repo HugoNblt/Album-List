@@ -45,6 +45,33 @@ class PagesTest extends AppWebTestCase
         self::assertResponseHasHeader('Referrer-Policy');
     }
 
+    public function testNoBetaNoticeWhenRegistrationIsOpen(): void
+    {
+        $this->client->request('GET', '/');
+
+        self::assertSelectorNotExists('#beta-modal');
+    }
+
+    public function testReviewFormIsProtectedAgainstAccidentalLoss(): void
+    {
+        $this->client->loginUser($this->createUser());
+        $album = $this->createAlbum();
+
+        $this->client->request('GET', '/modal/write/' . $album->getSpotifyId());
+
+        // La classe review-form active la sauvegarde du brouillon et bloque la fermeture au clic extérieur (app.js)
+        self::assertSelectorExists('form#modal-write-form.review-form');
+    }
+
+    public function testBioSubmitsOnEnter(): void
+    {
+        $this->client->loginUser($this->createUser());
+
+        $this->client->request('GET', '/profile/edit');
+
+        self::assertSelectorExists('textarea#profile_form_bio[data-submit-on-enter]');
+    }
+
     public function testKeyboardSkipLinkIsPresent(): void
     {
         $this->client->request('GET', '/');

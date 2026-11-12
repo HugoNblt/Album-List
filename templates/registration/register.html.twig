@@ -53,6 +53,21 @@
                 {% endif %}
             </div>
 
+            {# Acceptation des CGU #}
+            <div class="form-group">
+                <label class="checkbox-field" for="{{ registrationForm.agreeTerms.vars.id }}">
+                    {{ form_widget(registrationForm.agreeTerms) }}
+                    <span>J'ai lu et j'accepte les <a href="{{ path('app_terms') }}" target="_blank">conditions générales d'utilisation</a>.</span>
+                </label>
+                {% for error in registrationForm.agreeTerms.vars.errors %}
+                    <div class="form-error">{{ error.message }}</div>
+                {% endfor %}
+                <p class="form-hint">
+                    Tes données sont traitées comme décrit dans notre
+                    <a href="{{ path('app_privacy') }}" target="_blank">politique de confidentialité</a>.
+                </p>
+            </div>
+
             <button type="submit" class="btn-primary-submit">S'inscrire</button>
 
         {{ form_end(registrationForm) }}

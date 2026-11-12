@@ -6,14 +6,34 @@ use App\Entity\User;
 
 class SecurityTest extends AppWebTestCase
 {
-    private function register(string $username, string $email, string $password): void
+    private function register(string $username, string $email, string $password, bool $acceptTerms = true): void
     {
         $this->client->request('GET', '/register');
         $this->client->submitForm("S'inscrire", [
             'registration_form[username]' => $username,
             'registration_form[email]' => $email,
             'registration_form[plainPassword]' => $password,
+            'registration_form[agreeTerms]' => $acceptTerms,
         ]);
+    }
+
+    public function testRegistrationRequiresAcceptingTerms(): void
+    {
+        $this->register('sanscgu', 'sanscgu@example.test', 'MotDePasse!42', acceptTerms: false);
+
+        self::assertResponseStatusCodeSame(422);
+        self::assertSelectorTextContains('.form-error', 'accepter les conditions générales');
+        self::assertNull($this->em()->getRepository(User::class)->findOneBy(['username' => 'sanscgu']));
+    }
+
+    public function testTermsAcceptanceIsRecorded(): void
+    {
+        $this->register('aveccgu', 'aveccgu@example.test', 'MotDePasse!42');
+
+        $user = $this->em()->getRepository(User::class)->findOneBy(['username' => 'aveccgu']);
+        self::assertNotNull($user);
+        self::assertSame(static::getContainer()->getParameter('app.terms_version'), $user->getTermsVersion());
+        self::assertEqualsWithDelta(time(), $user->getTermsAcceptedAt()?->getTimestamp() ?? 0, 60);
     }
 
     public function testRegistrationCreatesAccountAndLogsIn(): void

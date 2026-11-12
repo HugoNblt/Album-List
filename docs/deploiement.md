@@ -329,6 +329,41 @@ sudo chmod 600 /var/www/album-list/shared/.env.local
 - `chmod 600` : seul `albumlist` peut lire ce fichier.
 - Les identifiants Spotify sont ceux de ton `.env.local` de dev, ou mieux, une application Spotify dédiée à la prod (https://developer.spotify.com/dashboard).
 
+### 1.10 Durée de conservation des journaux (14 jours)
+
+La politique de confidentialité annonce **14 jours maximum** pour les journaux techniques. Trois sources de journaux existent :
+
+| Journal | Rotation |
+|---|---|
+| Symfony : `shared/var/log/prod-AAAA-MM-JJ.log` | gérée par l'app (un fichier par jour, 14 gardés) |
+| Apache : `/var/log/apache2/album-list-*.log` | `logrotate` de Debian ; vérifie avec `cat /etc/logrotate.d/apache2` que la ligne `rotate` vaut `14` en rotation `daily` |
+| PHP-FPM : `shared/var/log/php-error.log` | **aucune par défaut** : à ajouter |
+
+Crée `/etc/logrotate.d/album-list` :
+
+```bash
+sudo nano /etc/logrotate.d/album-list
+```
+
+```
+/var/www/album-list/shared/var/log/php-error.log {
+    daily
+    rotate 14
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    su albumlist albumlist
+}
+```
+
+- `daily` + `rotate 14` : un fichier par jour, les plus anciens au-delà de 14 jours sont supprimés.
+- `copytruncate` : PHP-FPM garde le fichier ouvert ; on copie puis on vide, sans avoir à le redémarrer.
+- `su albumlist albumlist` : la rotation se fait avec les droits du propriétaire des fichiers.
+
+✅ Vérification : `sudo logrotate -d /etc/logrotate.d/album-list` (simulation, n'écrit rien) ne signale pas d'erreur.
+
 ---
 
 ## Phase 2 — Déploiement automatisé (Deployer + GitHub Actions)
