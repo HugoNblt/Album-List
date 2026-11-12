@@ -9,6 +9,8 @@
 parameters:
     app.avatar_dir: '%kernel.project_dir%/public/uploads/avatars'
     app.registration_enabled: '%env(bool:APP_REGISTRATION_ENABLED)%'
+    # Version des CGU affichée sur /cgu et enregistrée à l'acceptation : à changer à chaque modification du texte
+    app.terms_version: '2026-11-10'
 
 services:
     # default configuration for services in *this* file

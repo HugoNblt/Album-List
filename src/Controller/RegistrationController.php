@@ -24,7 +24,8 @@ class RegistrationController extends AbstractController
         Security $security, 
         EntityManagerInterface $entityManager,
         #[Autowire(service: 'limiter.registration')] RateLimiterFactoryInterface $registrationLimiter,
-        #[Autowire('%app.registration_enabled%')] bool $registrationEnabled
+        #[Autowire('%app.registration_enabled%')] bool $registrationEnabled,
+        #[Autowire('%app.terms_version%')] string $termsVersion
     ): Response {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
@@ -50,6 +51,7 @@ class RegistrationController extends AbstractController
             $plainPassword = $form->get('plainPassword')->getData();
 
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
+            $user->acceptTerms($termsVersion);
 
             $entityManager->persist($user);
             $entityManager->flush();

@@ -37,6 +37,14 @@ class ClosedBetaTest extends AppWebTestCase
         self::assertNull($this->em()->getRepository(User::class)->findOneBy(['username' => 'intrus']));
     }
 
+    public function testBetaNoticeIsShown(): void
+    {
+        $this->client->request('GET', '/');
+
+        self::assertSelectorExists('dialog#beta-modal[data-beta-notice]');
+        self::assertSelectorTextContains('#beta-modal', 'sur invitation');
+    }
+
     public function testRegistrationLinksAreHidden(): void
     {
         $this->client->request('GET', '/');

@@ -56,6 +56,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Assert\Length(max: 500, maxMessage: 'La description ne doit pas dépasser {{ limit }} caractères.')]
     private ?string $bio = null;
 
+    /** Date d'acceptation des CGU (preuve d'acceptation) */
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $termsAcceptedAt = null;
+
+    /** Version des CGU acceptée : si les CGU changent, on peut redemander l'accord */
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $termsVersion = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -133,6 +141,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     {
         $bio = TextSanitizer::multiline($bio);
         $this->bio = $bio === '' ? null : $bio;
+        return $this;
+    }
+
+    public function getTermsAcceptedAt(): ?\DateTimeImmutable
+    {
+        return $this->termsAcceptedAt;
+    }
+
+    public function getTermsVersion(): ?string
+    {
+        return $this->termsVersion;
+    }
+
+    public function acceptTerms(string $version): static
+    {
+        $this->termsAcceptedAt = new \DateTimeImmutable();
+        $this->termsVersion = $version;
         return $this;
     }
 

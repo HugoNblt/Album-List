@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Politique de confidentialité{% endblock %}
+
+{% block body %}
+<article class="container page legal-page">
+    <p class="eyebrow">Données personnelles</p>
+    <h1 class="section-title">Politique de<br>confidentialité</h1>
+    <p class="legal-page__updated">Dernière mise à jour : 10 novembre 2026</p>
+
+    <section>
+        <h2>Responsable du traitement</h2>
+        <p>Hugo Noblot – <a href="mailto:hugo.noju9@gmail.com">hugo.noju9@gmail.com</a></p>
+    </section>
+
+    <section>
+        <h2>Données collectées</h2>
+        <ul>
+            <li>
+                <strong>Lors de la création de votre compte :</strong> nom d'utilisateur, adresse e-mail et mot de passe.
+                Le mot de passe est stocké sous forme hachée : il est illisible, y compris pour l'éditeur.
+                La date et la version des conditions générales d'utilisation acceptées sont également enregistrées.
+            </li>
+            <li>
+                <strong>Sur votre profil, si vous les renseignez :</strong> photo de profil et description.
+                Les photos sont réencodées à l'envoi : leurs métadonnées (appareil, date, position GPS…) sont supprimées.
+            </li>
+            <li><strong>À l'usage :</strong> vos critiques et leurs révisions, vos notes, vos likes et leur date de publication.</li>
+            <li>
+                <strong>Techniquement :</strong> les journaux du serveur enregistrent l'adresse IP, la date, les pages
+                consultées (y compris les termes recherchés) et le navigateur utilisé. Pour protéger le site contre les abus
+                (tentatives de connexion répétées, envois en rafale), l'adresse IP ou l'identifiant du compte est aussi
+                conservé temporairement.
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Finalités</h2>
+        <p>
+            Créer et gérer votre compte, afficher vos publications, assurer la sécurité du site.
+            Aucune donnée n'est vendue, ni utilisée à des fins publicitaires.
+        </p>
+    </section>
+
+    <section>
+        <h2>Base légale</h2>
+        <p>
+            L'exécution des <a href="{{ path('app_terms') }}">conditions générales d'utilisation</a> que vous acceptez
+            en créant votre compte, et l'intérêt légitime pour la sécurité du site.
+        </p>
+    </section>
+
+    <section>
+        <h2>Durée de conservation</h2>
+        <ul>
+            <li>
+                <strong>Compte et publications :</strong> tant que votre compte existe. Vous pouvez le supprimer à tout moment
+                depuis « Modifier le profil » : votre compte, votre photo, vos critiques (révisions comprises) et vos likes
+                sont alors supprimés immédiatement et définitivement.
+            </li>
+            <li><strong>Journaux techniques :</strong> 14 jours maximum.</li>
+            <li><strong>Données de protection contre les abus :</strong> 1 heure maximum.</li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Destinataires et hébergement</h2>
+        <p>
+            Seul l'éditeur a accès à vos données. Elles sont hébergées en France, dans l'Union européenne,
+            par PulseHeberg, qui agit en tant que sous-traitant pour l'hébergement du serveur.
+        </p>
+    </section>
+
+    <section>
+        <h2>Services tiers</h2>
+        <ul>
+            <li>
+                <strong>Spotify :</strong> les pochettes d'albums sont chargées depuis les serveurs de Spotify. Votre navigateur
+                leur transmet donc votre adresse IP au moment de l'affichage ; ces serveurs peuvent être situés hors de l'Union européenne.
+            </li>
+            <li>
+                <strong>Google Fonts :</strong> les polices de caractères du site sont chargées depuis les serveurs de Google
+                (Google LLC, États-Unis). Votre navigateur leur transmet votre adresse IP au moment de l'affichage,
+                ce qui peut constituer un transfert hors de l'Union européenne.
+            </li>
+            <li>
+                <strong>Bouton « Écouter » :</strong> il vous redirige vers la page de l'album sur Spotify, ou vers une recherche
+                de l'album sur les autres services de streaming. Aucune donnée de votre compte n'est transmise ;
+                une fois sur ce service, sa propre politique de confidentialité s'applique.
+            </li>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Vos droits</h2>
+        <p>
+            Vous pouvez accéder à vos données, les rectifier, les supprimer, en demander une copie, en limiter le traitement
+            ou vous y opposer en écrivant à <a href="mailto:hugo.noju9@gmail.com">hugo.noju9@gmail.com</a>.
+            Une réponse vous sera apportée dans un délai d'un mois.
+            Depuis « Modifier le profil », vous pouvez aussi modifier votre pseudo, votre photo et votre description,
+            et supprimer votre compte.
+        </p>
+        <p>Vous pouvez également introduire une réclamation auprès de la CNIL (<a href="https://www.cnil.fr" rel="noopener noreferrer" target="_blank">cnil.fr</a>).</p>
+    </section>
+
+    <section>
+        <h2>Cookies</h2>
+        <p>
+            Le site utilise uniquement un cookie de session, déposé lorsque vous vous connectez et strictement nécessaire
+            au maintien de votre connexion. Aucun cookie de mesure d'audience ni de publicité n'est déposé ;
+            aucun consentement n'est donc requis.
+        </p>
+    </section>
+
+    <p class="legal-page__links">
+        Voir aussi : <a href="{{ path('app_legal_notice') }}">Mentions légales</a> ·
+        <a href="{{ path('app_terms') }}">Conditions générales d'utilisation</a>
+    </p>
+</article>
+{% endblock %}

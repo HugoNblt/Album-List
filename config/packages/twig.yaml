@@ -2,6 +2,7 @@ twig:
     file_name_pattern: '*.twig'
     globals:
         registration_enabled: '%app.registration_enabled%'
+        terms_version: '%app.terms_version%'
 
 when@test:
     twig:
